@@ -1,137 +1,26 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>STUDENTUS — Добавить задание</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --main-color: #1A2138;       /* Тёмно-синий */
-      --accent-color: #00BFFF;     /* Голубой */
-      --text-color: #fff;
-      --bg-color: #f4f8ff;
-    }
-
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background-color: var(--bg-color);
-      color: var(--main-color);
-      margin: 0;
-      padding: 20px;
-    }
-
-    .container {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
-      padding: 24px;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      text-align: center;
-      color: var(--main-color);
-      font-size: 24px;
-      margin-bottom: 24px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 16px;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      font-size: 16px;
-      background-color: #f9f9f9;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    button {
-      width: 100%;
-      background-color: var(--accent-color);
-      color: white;
-      border: none;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      font-weight: 600;
-    }
-
-    button:hover {
-      background-color: #0095cc;
-    }
-
-    .footer {
-      text-align: center;
-      font-size: 12px;
-      margin-top: 16px;
-      color: #777;
-    }
-
-    .emoji {
-      font-size: 20px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>STUDENTUS — главное меню</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
-    <h1><span class="emoji">📌</span> Новое задание</h1>
-    
-    <label for="subject">Предмет</label>
-    <input id="subject" placeholder="Например: Математика" />
+    <img src="logo.png" alt="STUDENTUS" class="logo" />
+    <h1>STUDENTUS</h1>
+    <p class="subtitle">Выбери действие:</p>
 
-    <label for="description">Описание</label>
-    <textarea id="description" placeholder="Что нужно сделать?"></textarea>
-
-    <label for="price">Цена (₽)</label>
-    <input id="price" type="number" placeholder="Например: 300" />
-
-    <label for="deadline">Дедлайн (ДД.ММ)</label>
-    <input id="deadline" placeholder="Например: 28.07" />
-
-    <button onclick="submitForm()">📤 Отправить</button>
-
-    <div class="footer">STUDENTUS · Успей сдать вовремя</div>
+    <div class="menu">
+      <a href="add.html" class="btn">➕ Добавить задание</a>
+      <a href="tasks.html" class="btn">📋 Список заданий</a>
+      <a href="profile.html" class="btn">📈 Личный кабинет</a>
+      <a href="https://t.me/Nikita_Grud" class="btn" target="_blank">🛟 Служба заботы</a>
+      <a href="rules.html" class="btn" target="_blank">🔒 Гарантии</a>
+    </div>
   </div>
-
-  <script>
-    function submitForm() {
-      const subject = document.getElementById("subject").value.trim();
-      const description = document.getElementById("description").value.trim();
-      const price = document.getElementById("price").value.trim();
-      const deadline = document.getElementById("deadline").value.trim();
-
-      if (!subject  !description  !price || !deadline) {
-        alert("⚠️ Пожалуйста, заполните все поля!");
-        return;
-      }
-
-      const data = {
-        subject,
-        description,
-        price,
-        deadline
-      };
-
-      Telegram.WebApp.sendData(JSON.stringify(data));
-      Telegram.WebApp.close();
-    }
-  </script>
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
 </html>
