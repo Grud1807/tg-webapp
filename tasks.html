@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Список заданий</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back">← Назад на главную</a>
+    <h2>📋 Список заданий</h2>
+    <div id="tasks"></div>
+  </div>
+
+  <script>
+    const AIRTABLE_API_KEY = "patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4";
+    const BASE_ID = "appTpq4tdeQ27uxQ9";
+    const TABLE_NAME = "Tasks";
+    const AIRTABLE_URL = https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME};
+
+    async function loadTasks() {
+      const response = await fetch(`${AIRTABLE_URL}?filterByFormula=%7BСтатус%7D%3D%22Новая%22`, {
+        headers: {
+          Authorization: Bearer ${AIRTABLE_API_KEY}
+        }
+      });
+      const data = await response.json();
+
+      const container = document.getElementById("tasks");
+      if (data.records.length === 0) {
+        container.innerHTML = "<p>Пока нет новых заданий 😌</p>";
+        return;
+      }
+
+      data.records.forEach((record) => {
+        const task = record.fields;
+        const div = document.createElement("div");
+        div.className = "task-card";
+        div.innerHTML = `
+          <h3>${task["Предмет"] || "Без предмета"}</h3>
+          <p>${task["Описание"] || "Без описания"}</p>
+          <p>💰 ${task["Цена"]  0} ₽ &nbsp; ⏰ ${task["Дедлайн"]  "-"}</p>
+          <button onclick="takeTask('${record.id}')">👨‍🔧 Взять в работу</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    async function takeTask(taskId) {
+      const userId = Telegram.WebApp.initDataUnsafe?.user?.id || "неизвестно";
+      const response = await fetch(`${AIRTABLE_URL}/${taskId}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: Bearer ${AIRTABLE_API_KEY},
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fields: {
+            "Статус": "В работе",
+            "ID исполнителя": String(userId)
+          }
+        })
+      });
+
+      if (response.ok) {
+        alert("✅ Задание взято в работу!");
+        window.location.reload();
+      } else {
+        alert("❌ Ошибка. Попробуйте позже.");
+      }
+    }
+
+    loadTasks();
+  </script>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</body>
+</html>
