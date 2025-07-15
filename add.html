@@ -80,7 +80,7 @@
         "Цена": document.getElementById("price").value,
         "Дедлайн": document.getElementById("deadline").value
       };
-
+      console.log("📤 Отправка данных:", data);
       Telegram.WebApp.sendData(JSON.stringify(data));
       Telegram.WebApp.close();
     }
