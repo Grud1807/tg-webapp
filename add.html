@@ -1,27 +1,89 @@
+<!-- add.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Добавить задание — STUDENTUS</title>
+  <title>➕ Добавить задание</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f6fc;
+      color: #1c1e21;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: auto;
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      color: #133d8d;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background-color: #1d4ed8;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      color: #1d4ed8;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+  </style>
 </head>
 <body>
   <div class="container">
-    <a href="index.html" class="back">← Назад на главную</a>
-    <h2>➕ Добавить задание</h2>
-    
-    <input id="subject" placeholder="Предмет (например, Математика)" />
-    <textarea id="description" placeholder="Описание задания"></textarea>
-    <input id="price" type="number" placeholder="Цена (₽)" />
+    <a href="index.html" class="back-link">← Назад на главную</a>
+    <h2>➕ Новое задание</h2>
+
+    <input id="subject" placeholder="Предмет (например: Математика)" />
+    <textarea id="description" placeholder="Описание задания (например: Нарисовать схему)"></textarea>
+    <input id="price" placeholder="Цена (₽)" type="number" />
     <input id="deadline" placeholder="Дедлайн (ДД.ММ)" />
 
-    <button onclick="submitForm()">📤 Отправить</button>
+    <button onclick="submitForm()">📤 Отправить задание</button>
   </div>
 
   <script>
-    Telegram.WebApp.ready();
-    
     function submitForm() {
       const data = {
         subject: document.getElementById("subject").value,
