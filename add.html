@@ -84,18 +84,18 @@
   </div>
 
   <script>
-    function submitForm() {
-      const data = {
-        subject: document.getElementById("subject").value,
-        description: document.getElementById("description").value,
-        price: document.getElementById("price").value,
-        deadline: document.getElementById("deadline").value
-      };
+  function submitForm() {
+    const data = {
+      "Предмет": document.getElementById("subject").value,
+      "Описание": document.getElementById("description").value,
+      "Цена": document.getElementById("price").value,
+      "Дедлайн": document.getElementById("deadline").value
+    };
 
-      Telegram.WebApp.sendData(JSON.stringify(data));
-      Telegram.WebApp.close();
-    }
-  </script>
+    Telegram.WebApp.sendData(JSON.stringify(data));
+    Telegram.WebApp.close();
+  }
+</script>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
