@@ -1,93 +1,102 @@
-<!-- add.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Добавить задание</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f7ff;
       margin: 0;
       padding: 20px;
-      background-color: #f9faff;
-      color: #1c1c1c;
     }
-
     .container {
       max-width: 400px;
-      margin: 0 auto;
-      padding: 25px;
+      margin: auto;
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     }
-
     h2 {
       text-align: center;
-      margin-bottom: 20px;
-      color: #004c99;
+      color: #123366;
     }
-
-    input, textarea, button {
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 500;
+    }
+    input, textarea, select {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 14px;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 10px;
       border: 1px solid #ccc;
-      border-radius: 8px;
       font-size: 15px;
+      box-sizing: border-box;
     }
-
     button {
-      background-color: #0077cc;
+      margin-top: 20px;
+      width: 100%;
+      background-color: #007bff;
       color: white;
-      font-weight: bold;
+      padding: 12px;
+      font-size: 16px;
       border: none;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.2s ease;
     }
-
     button:hover {
-      background-color: #005fa3;
+      background-color: #0056b3;
     }
-
-    .back-button {
+    .back-btn {
       position: absolute;
-      top: 15px;
-      left: 15px;
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: #0077cc;
+      top: 10px;
+      left: 10px;
+      font-size: 16px;
+      text-decoration: none;
+      color: #007bff;
     }
   </style>
 </head>
 <body>
-  <button class="back-button" onclick="window.location.href='index.html'">←</button>
+  <a href="index.html" class="back-btn">← Назад</a>
   <div class="container">
-    <h2>➕ Новое задание</h2>
-    <input id="subject" placeholder="Предмет" />
-    <textarea id="description" placeholder="Описание"></textarea>
-    <input id="price" placeholder="Цена (₽)" type="number" />
-    <input id="deadline" placeholder="Дедлайн (ДД.ММ)" />
-    <button onclick="submitForm()">📤 Отправить</button>
+    <h2>Добавить задание</h2>
+    <form onsubmit="submitForm(); return false;">
+      <label for="subject">Предмет:</label>
+      <input type="text" id="subject" name="subject" required />
+
+      <label for="description">Описание:</label>
+      <textarea id="description" name="description" required></textarea>
+
+      <label for="price">Цена:</label>
+      <input type="number" id="price" name="price" required />
+
+      <label for="deadline">Дедлайн:</label>
+      <input type="date" id="deadline" name="deadline" required />
+
+      <button type="submit">📩 Отправить</button>
+    </form>
   </div>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     function submitForm() {
       const data = {
         subject: document.getElementById("subject").value,
         description: document.getElementById("description").value,
-        price: parseFloat(document.getElementById("price").value), // ОБЯЗАТЕЛЬНО число
+        price: parseInt(document.getElementById("price").value),
         deadline: document.getElementById("deadline").value
       };
 
-      Telegram.WebApp.sendData(JSON.stringify(data));
-      Telegram.WebApp.close();
+      const tg = window.Telegram.WebApp;
+      tg.sendData(JSON.stringify(data));
+      tg.close();
     }
   </script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
 </html>
