@@ -3,42 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>➕ Новое задание</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Новое задание</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f5f8ff;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f3f6fd;
+      padding: 20px;
       margin: 0;
-      padding: 0;
     }
     .container {
-      max-width: 400px;
-      margin: 40px auto;
-      background: #fff;
+      max-width: 420px;
+      margin: 0 auto;
+      background: white;
       padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     }
     h2 {
-      color: #0d2a5c;
       text-align: center;
+      color: #0d3b66;
       margin-bottom: 20px;
     }
     input, textarea {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 16px;
+      border: 1px solid #d1d1d1;
+      border-radius: 12px;
       font-size: 15px;
       box-sizing: border-box;
     }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
     button {
       width: 100%;
-      background-color: #0044cc;
-      color: white;
       padding: 14px;
+      background-color: #005eff;
+      color: white;
       border: none;
       border-radius: 12px;
       font-size: 16px;
@@ -47,43 +51,35 @@
       transition: background-color 0.3s ease;
     }
     button:hover {
-      background-color: #0033aa;
-    }
-    .back {
-      display: block;
-      margin-bottom: 20px;
-      color: #0044cc;
-      text-decoration: none;
-      font-size: 14px;
+      background-color: #0041cc;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <a class="back" href="index.html">← Назад на главную</a>
     <h2>➕ Новое задание</h2>
-
-    <input id="subject" placeholder="Предмет (например: Математика)" />
-    <textarea id="description" placeholder="Описание задания (например: Нарисовать схему)"></textarea>
-    <input id="price" placeholder="Цена (₽)" type="number" />
-    <input id="deadline" placeholder="Дедлайн (ДД.ММ)" />
-
+    <input id="subject" placeholder="Предмет (например: Математика)" required />
+    <textarea id="description" placeholder="Описание задания (например: Нарисовать схему)" required></textarea>
+    <input id="price" placeholder="Цена (₽)" required />
+    <input id="deadline" placeholder="Дедлайн (ДД.ММ)" required />
     <button onclick="submitForm()">📩 Отправить задание</button>
   </div>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     function submitForm() {
       const data = {
-        "Предмет": document.getElementById("subject").value,
-        "Описание": document.getElementById("description").value,
-        "Цена": document.getElementById("price").value,
-        "Дедлайн": document.getElementById("deadline").value
+        subject: document.getElementById("subject").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        price: document.getElementById("price").value.trim(),
+        deadline: document.getElementById("deadline").value.trim()
       };
-      console.log("📤 Отправка данных:", data);
+
+      console.log("📤 Отправка данных: ", data);
       Telegram.WebApp.sendData(JSON.stringify(data));
       Telegram.WebApp.close();
     }
+
+    Telegram.WebApp.ready();
   </script>
 </body>
 </html>
