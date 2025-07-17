@@ -1,11 +1,9 @@
-<!-- add.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Добавить задание</title>
-  <link rel="stylesheet" href="styles.css">
   <style>
     body {
       margin: 0;
@@ -46,6 +44,13 @@
       color: #003a9c;
     }
 
+    label {
+      font-weight: 600;
+      margin-top: 10px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
     input, textarea {
       width: 100%;
       padding: 12px;
@@ -54,6 +59,11 @@
       border: 1px solid #ccc;
       font-size: 14px;
       box-sizing: border-box;
+    }
+
+    input[type="date"] {
+      color: #333;
+      background-color: #fff;
     }
 
     textarea {
@@ -80,17 +90,26 @@
 </head>
 <body>
   <div class="container">
-    <a href="index.html" class="back-btn">⬅ Назад</a>
+    <a href="index.html" class="back-btn">Назад</a>
 
     <img src="logo.png" alt="STUDENTUS" class="logo" />
 
     <h2>➕ Новое задание</h2>
 
     <form onsubmit="submitForm(); return false;">
-      <input type="text" id="subject" placeholder="Пример: Математика" required />
+
+      <label for="subject">Предмет</label>
+      <input type="text" id="subject" placeholder="Например: Математика" required />
+
+      <label for="description">Описание</label>
       <textarea id="description" placeholder="Что нужно сделать?" required></textarea>
-      <input type="number" id="price" placeholder="Пример: 300" required />
+
+      <label for="price">Цена (₽)</label>
+      <input type="number" id="price" placeholder="Например: 300" required />
+
+      <label for="deadline">Дедлайн</label>
       <input type="date" id="deadline" required />
+
       <button type="submit" class="btn-submit">📩 Отправить</button>
     </form>
   </div>
