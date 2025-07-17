@@ -1,128 +1,93 @@
+<!-- add.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Добавить задание — STUDENTUS</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Добавить задание</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     body {
-      font-family: "Segoe UI", sans-serif;
-      background-color: #f4f8ff;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 20px;
+      background-color: #f9faff;
+      color: #1c1c1c;
     }
 
     .container {
-      max-width: 480px;
-      margin: auto;
-      background: #fff;
+      max-width: 400px;
+      margin: 0 auto;
       padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
     h2 {
       text-align: center;
       margin-bottom: 20px;
-      color: #002366;
+      color: #004c99;
     }
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    input, textarea {
+    input, textarea, button {
       width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
       border: 1px solid #ccc;
-      border-radius: 12px;
-      font-size: 16px;
-      background-color: #f9fbff;
-      box-sizing: border-box;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 80px;
+      border-radius: 8px;
+      font-size: 15px;
     }
 
     button {
-      width: 100%;
-      padding: 12px;
-      background-color: #2d6cdf;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
+      background-color: #0077cc;
+      color: white;
       font-weight: bold;
+      border: none;
       cursor: pointer;
-      transition: background-color 0.2s ease-in-out;
+      transition: background-color 0.2s ease;
     }
 
     button:hover {
-      background-color: #1c4fc9;
+      background-color: #005fa3;
     }
 
-    .back-link {
-      display: inline-block;
-      margin-bottom: 15px;
-      color: #2d6cdf;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    .back-link:hover {
-      text-decoration: underline;
+    .back-button {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #0077cc;
     }
   </style>
 </head>
 <body>
+  <button class="back-button" onclick="window.location.href='index.html'">←</button>
   <div class="container">
-    <a href="index.html" class="back-link">← Назад на главную</a>
-    <h2>Новое задание</h2>
-    <form id="taskForm">
-      <label for="subject">Предмет</label>
-      <input type="text" id="subject" name="subject" required>
-
-      <label for="description">Описание</label>
-      <textarea id="description" name="description" required></textarea>
-
-      <label for="price">Цена</label>
-      <input type="number" id="price" name="price" required>
-
-      <label for="deadline">Дедлайн</label>
-      <input type="text" id="deadline" name="deadline" placeholder="например, 20.07" required>
-
-      <button type="submit">📩 Отправить задание</button>
-    </form>
+    <h2>➕ Новое задание</h2>
+    <input id="subject" placeholder="Предмет" />
+    <textarea id="description" placeholder="Описание"></textarea>
+    <input id="price" placeholder="Цена (₽)" type="number" />
+    <input id="deadline" placeholder="Дедлайн (ДД.ММ)" />
+    <button onclick="submitForm()">📤 Отправить</button>
   </div>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    const form = document.getElementById("taskForm");
-
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
-
+    function submitForm() {
       const data = {
         subject: document.getElementById("subject").value,
         description: document.getElementById("description").value,
-        price: document.getElementById("price").value,
+        price: parseFloat(document.getElementById("price").value), // ОБЯЗАТЕЛЬНО число
         deadline: document.getElementById("deadline").value
       };
 
-      if (window.Telegram.WebApp) {
-        Telegram.WebApp.sendData(JSON.stringify(data));
-        Telegram.WebApp.close();
-      } else {
-        alert("Ошибка: WebApp не загружен.");
-      }
-    });
+      Telegram.WebApp.sendData(JSON.stringify(data));
+      Telegram.WebApp.close();
+    }
   </script>
 </body>
 </html>
