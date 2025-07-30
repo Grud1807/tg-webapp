@@ -65,14 +65,44 @@
       font-weight: bold;
       font-size: 14px;
     }
+
+    .filter {
+      margin-bottom: 20px;
+    }
+
+    .filter select {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #666;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
   <a href="index.html" class="back-button">Назад</a>
   <div class="container">
     <h2>📋 Все задания</h2>
-    <div id="tasks-list">
-      <p>Загрузка заданий...</p>
+
+    <div class="filter">
+      <label for="subjectFilter">Фильтр по предмету: </label>
+      <select id="subjectFilter" onchange="fetchTasks()">
+        <option value="">Все</option>
+        <option value="Математика">Математика</option>
+        <option value="Физика">Физика</option>
+        <option value="Химия">Химия</option>
+        <option value="Информатика">Информатика</option>
+        <!-- Добавь свои -->
+      </select>
+    </div>
+
+    <div id="tasks-list" class="loading">
+      Загрузка заданий...
     </div>
   </div>
 
@@ -80,13 +110,24 @@
     const airtableApiKey = 'patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4';
     const baseId = 'appTpq4tdeQ27uxQ9';
     const tableName = 'Tasks';
-    const apiUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+    const apiUrl = https://api.airtable.com/v0/${baseId}/${tableName};
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
     async function fetchTasks() {
+      const subjectFilter = document.getElementById("subjectFilter").value;
+      let filterFormula = AND({Статус} = 'Новое');
+
+      if (subjectFilter) {
+        filterFormula = AND({Статус} = 'Новое', {Предмет} = '${subjectFilter}');
+      }
+
+      const url = ${apiUrl}?filterByFormula=${encodeURIComponent(filterFormula)};
+
       try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch(url, {
           headers: {
-            Authorization: `Bearer ${airtableApiKey}`
+            Authorization: Bearer ${airtableApiKey}
           }
         });
 
@@ -103,27 +144,58 @@
           const task = document.createElement('div');
           task.className = 'task';
 
+          const taskId = record.id;
+
           task.innerHTML = `
             <h3>${record.fields['Предмет'] || 'Без предмета'}</h3>
             <p><strong>Описание:</strong> ${record.fields['Описание'] || 'Нет данных'}</p>
             <p><strong>Цена:</strong> ${record.fields['Цена'] || '—'}</p>
             <p><strong>Дедлайн:</strong> ${record.fields['Дедлайн'] || '—'}</p>
-            <button class="btn-take" onclick="confirmTake()">Взять в работу</button>
+            <button class="btn-take" onclick="confirmTake('${taskId}', this)">Взять в работу</button>
           `;
 
           tasksContainer.appendChild(task);
         });
 
-      } catch (error) {
-        document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
+      } catch (error) {document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
         console.error('Ошибка при загрузке заданий:', error);
       }
     }
 
-    function confirmTake() {
-      if (confirm("Вы уверены, что хотите взять это задание в работу?")) {
-        alert("Задание взято в работу!");
-        // Здесь можно отправить PATCH-запрос для смены статуса
+    async function confirmTake(recordId, button) {
+      if (!confirm("Вы уверены, что хотите взять это задание в работу?")) return;
+
+      button.innerText = "⏳ Обработка...";
+      button.disabled = true;
+
+      try {
+        const patchUrl = ${apiUrl}/${recordId};
+        const payload = {
+          fields: {
+            "Статус": "В работе",
+            "Пользователь Telegram": tg.initDataUnsafe.user?.username || "нет username",
+            "ID пользователя": tg.initDataUnsafe.user?.id
+          }
+        };
+
+        const res = await fetch(patchUrl, {
+          method: "PATCH",
+          headers: {
+            Authorization: Bearer ${airtableApiKey},
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          alert("🎉 Задание успешно взято!");
+          button.parentElement.remove(); // удаляем карточку задания
+        } else {
+          alert("❌ Ошибка при взятии задания. Попробуйте позже.");
+        }
+      } catch (err) {
+        console.error("Ошибка при взятии:", err);
+        alert("❌ Ошибка сети или сервера.");
       }
     }
 
