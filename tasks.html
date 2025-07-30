@@ -135,6 +135,7 @@
         });
 
         const data = await response.json();
+        console.log("📦 Ответ от Airtable:", data);
         const tasksContainer = document.getElementById('tasks-list');
         tasksContainer.innerHTML = '';
 
