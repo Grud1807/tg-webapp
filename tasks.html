@@ -110,24 +110,24 @@
     const airtableApiKey = 'patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4';
     const baseId = 'appTpq4tdeQ27uxQ9';
     const tableName = 'Tasks';
-    const apiUrl = https://api.airtable.com/v0/${baseId}/${tableName};
+    const apiUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
     const tg = window.Telegram.WebApp;
     tg.expand();
 
     async function fetchTasks() {
       const subjectFilter = document.getElementById("subjectFilter").value;
-      let filterFormula = AND({Статус} = 'Новое');
+      let filterFormula = `AND({Статус} = 'Новое')`;
 
       if (subjectFilter) {
-        filterFormula = AND({Статус} = 'Новое', {Предмет} = '${subjectFilter}');
+        filterFormula = `AND({Статус} = 'Новое', {Предмет} = '${subjectFilter}')`;
       }
 
-      const url = ${apiUrl}?filterByFormula=${encodeURIComponent(filterFormula)};
+      const url =`${apiUrl}?filterByFormula=${encodeURIComponent(filterFormula)}`;
 
       try {
         const response = await fetch(url, {
           headers: {
-            Authorization: Bearer ${airtableApiKey}
+            Authorization: `Bearer ${airtableApiKey}`
           }
         });
 
