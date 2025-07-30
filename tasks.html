@@ -169,7 +169,7 @@
       button.disabled = true;
 
       try {
-        const patchUrl = ${apiUrl}/${recordId};
+        const patchUrl =` ${apiUrl}/${recordId}`;
         const payload = {
           fields: {
             "Статус": "В работе",
@@ -181,7 +181,7 @@
         const res = await fetch(patchUrl, {
           method: "PATCH",
           headers: {
-            Authorization: Bearer ${airtableApiKey},
+            Authorization: `Bearer ${airtableApiKey}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify(payload)
