@@ -12,13 +12,11 @@
       margin: 0;
       padding: 0;
     }
-
     .container {
       padding: 20px;
       max-width: 600px;
       margin: auto;
     }
-
     .task {
       background-color: #fff;
       border-radius: 10px;
@@ -26,17 +24,14 @@
       padding: 16px;
       margin-bottom: 16px;
     }
-
     .task h3 {
       margin: 0 0 10px;
       color: #1a237e;
     }
-
     .task p {
       margin: 4px 0;
       color: #333;
     }
-
     .btn-take {
       margin-top: 10px;
       display: inline-block;
@@ -49,11 +44,9 @@
       border: none;
       cursor: pointer;
     }
-
     .btn-take:hover {
       background-color: #155ab6;
     }
-
     .back-button {
       position: fixed;
       top: 10px;
@@ -69,110 +62,91 @@
   </style>
 </head>
 <body>
-  <a href="index.html" class="back-button">← Назад</a>
+  <a href="index.html" class="back-button">Назад</a>
   <div class="container">
     <h2>📋 Все задания</h2>
     <div id="tasks-list">
-      <p>Загрузка заданий...Это может занять несколько минут</p>
+      <p>Загрузка заданий...</p>
     </div>
   </div>
 
   <script>
-    const airtableApiKey = 'patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4';
-    const baseId = 'appTpq4tdeQ27uxQ9';
-    const tableName = 'Tasks';
-    const apiUrl =` https://api.airtable.com/v0/${baseId}/${tableName}`;
+    const airtableApiKey = "patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4";
+    const baseId = "appTpq4tdeQ27uxQ9";
+    const tableName = "Tasks";
+    const apiUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+    const botToken = "8101750587:AAEoO1Aote7wHIRDADD4kpwFyYOYIkibe_c";
+
     const tg = window.Telegram.WebApp;
+    const userId = tg.initDataUnsafe?.user?.id;
 
     async function fetchTasks() {
-      try {
-        const response = await fetch(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${airtableApiKey}`
-          }
-        });
+      const response = await fetch(`${apiUrl}?filterByFormula=AND(Status='Новое')`, {
+        headers: { Authorization:` Bearer ${airtableApiKey}` }
+      });
+      const data = await response.json();
+      const tasksContainer = document.getElementById('tasks-list');
+      tasksContainer.innerHTML = '';
 
-        const data = await response.json();
-        const tasksContainer = document.getElementById('tasks-list');
-        tasksContainer.innerHTML = '';
-
-        if (!data.records || data.records.length === 0) {
-          tasksContainer.innerHTML = '<p>Пока нет заданий.</p>';
-          return;
-        }
-
-        data.records.forEach(record => {
-          const taskId = record.id;
-          const fields = record.fields;
-
-          const task = document.createElement('div');
-          task.className = 'task';
-          task.id = `task-${taskId};`
-
-          task.innerHTML = `
-            <h3>${fields['Предмет'] || 'Без предмета'}</h3>
-            <p><strong>Описание:</strong> ${fields['Описание'] || 'Нет данных'}</p>
-            <p><strong>Цена:</strong> ${fields['Цена'] || '—'}</p>
-            <p><strong>Дедлайн:</strong> ${fields['Дедлайн'] || '—'}</p>
-            <button class="btn-take" onclick="confirmTake('${taskId}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>
-          `;
-
-          tasksContainer.appendChild(task);
-        });
-
-      } catch (error) {
-        document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
-        console.error('Ошибка при загрузке заданий:', error);
+      if (!data.records || data.records.length === 0) {
+        tasksContainer.innerHTML = '<p>Пока нет заданий.</p>';
+        return;
       }
+
+      data.records.forEach(record => {
+        const taskId = record.id;
+        const fields = record.fields;
+
+        const task = document.createElement('div');
+        task.className = 'task';
+        task.id = `task-${taskId}`;
+        task.innerHTML = `
+          <h3>${fields['Предмет'] || 'Без предмета'}</h3>
+          <p><strong>Описание:</strong> ${fields['Описание'] || 'Нет данных'}</p>
+          <p><strong>Цена:</strong> ${fields['Цена'] || '—'}</p>
+          <p><strong>Дедлайн:</strong> ${fields['Дедлайн'] || '—'}</p>
+          <button class="btn-take" onclick="confirmTake('${taskId}', '${fields['ID пользователя'] || ''}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>
+        `;
+        tasksContainer.appendChild(task);
+      });
     }
 
-    async function confirmTake(taskId, subject, description, price, deadline) {
-      const confirmed = confirm("Вы уверены, что хотите взять это задание в работу?");
-      if (!confirmed) return;
+    async function confirmTake(taskId, ownerId, subject, description, price, deadline) {
+      const confirmAction = confirm("Вы уверены, что хотите взять это задание в работу?");
+      if (!confirmAction) return;
 
-      try {
-        // Меняем статус на "В работе"
-        const updateUrl =` ${apiUrl}/${taskId}`;
-        const updateData = {
-          fields: { Статус: "В работе" }
-        };
+      // 1. Меняем статус задания в Airtable
+      await fetch(`${apiUrl}/${taskId}`, {
+        method: "PATCH",
+        headers: {
+          Authorization:` Bearer ${airtableApiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fields: {
+            "Статус": "В работе"
+          }
+        })
+      });
 
-        const response = await fetch(updateUrl, {
-          method: 'PATCH',
-          headers: {
-            Authorization:` Bearer ${airtableApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(updateData)
-        });
+      // 2. Удаляем задание со страницы
+      const taskElement = document.getElementById(`task-${taskId}`);
+      if (taskElement) taskElement.remove();
 
-        if (response.ok) {
-         // Удаляем задание из DOM
-          const taskElement = document.getElementById(`task-${taskId}`);
-          if (taskElement) taskElement.remove();
-
-          // Сворачиваем WebApp
-          tg.close();
-
-          // Показываем сообщение
-          const message = `
-✅ Вы успешно взяли задание в работу!
-📚 Предмет: ${subject}
-📝 Описание: ${description}
-💰 Оплата: ${price} ₽
-⏰ Дедлайн: ${deadline}
-
-⚠️ Не забудьте выполнить задание в срок. В случае невыполнения — блокировка.
-💸 После подтверждения выполнения средства будут переведены вам автоматически.
-          `;
-          alert(message);
-        } else {
-          alert("❌ Не удалось обновить статус задания. Попробуйте позже.");
-        }
-      } catch (error) {
-        console.error("Ошибка при взятии задания в работу:", error);
-        alert("❌ Произошла ошибка. Попробуйте позже.");
-      }
+      // 3. Сворачиваем WebApp
+      tg.close();
+      // 4. Отправка сообщения исполнителю с деталями
+      const instruction =` Вы успешно взяли задание в работу!\n\n📚 Предмет: ${subject}\n📝 Описание: ${description}\n💰 Цена: ${price}\n⏰ Дедлайн: ${deadline}\n\n❗️Пожалуйста, выполните задание в срок. В случае неисполнения — возможна блокировка.\n💸 После подтверждения выполнения деньги будут переведены.\n\nДля связи с заказчиком: https://t.me/${ownerId || 'неизвестно'}`;
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          chat_id: userId,
+          text: instruction
+        })
+      });
     }
 
     fetchTasks();
