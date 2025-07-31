@@ -147,8 +147,8 @@
 
         if (response.ok) {
           // Удаляем элемент со страницыconst taskElement = document.getElementById(`task-${taskId}`);
-          if (taskElement) taskElement.remove();
-
+          const taskElement = document.getElementById(`task-${taskId}`);
+if (taskElement) taskElement.remove();
           // Сворачиваем WebApp
           tg.close();
 
