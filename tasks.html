@@ -88,7 +88,7 @@
       try {
         const response = await fetch(apiUrl, {
           headers: {
-            Authorization: `Bearer ${airtableApiKey}`
+            Authorization:` Bearer ${airtableApiKey}`
           }
         });
 
@@ -131,7 +131,6 @@
       if (!confirmed) return;
 
       try {
-        // Меняем статус на "В работе"
         const updateUrl = `${apiUrl}/${taskId}`;
         const updateData = {
           fields: { Статус: "В работе" }
@@ -140,15 +139,14 @@
         const response = await fetch(updateUrl, {
           method: 'PATCH',
           headers: {
-            Authorization:` Bearer ${airtableApiKey}`,
+            Authorization: `Bearer ${airtableApiKey}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(updateData)
         });
 
         if (response.ok) {
-          // Удаляем задание из DOM
-          const taskElement = document.getElementById(`task-${taskId}`);
+          // Удаляем элемент со страницыconst taskElement = document.getElementById(`task-${taskId}`);
           if (taskElement) taskElement.remove();
 
           // Сворачиваем WebApp
@@ -167,10 +165,13 @@
           `;
           alert(message);
         } else {
+          const errorText = await response.text();
+          console.error("Ошибка обновления задания:", errorText);
           alert("❌ Не удалось обновить статус задания. Попробуйте позже.");
         }
+
       } catch (error) {
-        console.error("Ошибка при взятии задания в работу:", error);
+        console.error("Ошибка при взятии задания:", error);
         alert("❌ Произошла ошибка. Попробуйте позже.");
       }
     }
