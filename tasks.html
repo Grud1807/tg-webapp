@@ -88,7 +88,7 @@
       try {
         const response = await fetch(apiUrl, {
           headers: {
-            Authorization: Bearer ${airtableApiKey}
+            Authorization: `Bearer ${airtableApiKey}`
           }
         });
 
@@ -107,7 +107,7 @@
 
           const task = document.createElement('div');
           task.className = 'task';
-          task.id = task-${taskId};
+          task.id = `task-${taskId};`
 
           task.innerHTML = `
             <h3>${fields['Предмет'] || 'Без предмета'}</h3>
@@ -132,7 +132,7 @@
 
       try {
         // Меняем статус на "В работе"
-        const updateUrl = ${apiUrl}/${taskId};
+        const updateUrl =` ${apiUrl}/${taskId}`;
         const updateData = {
           fields: { Статус: "В работе" }
         };
@@ -140,7 +140,7 @@
         const response = await fetch(updateUrl, {
           method: 'PATCH',
           headers: {
-            Authorization: Bearer ${airtableApiKey},
+            Authorization:` Bearer ${airtableApiKey}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(updateData)
