@@ -83,16 +83,10 @@
     const tableName = 'Tasks';
     const apiUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
     const tg = window.Telegram.WebApp;
-    const userId = tg.initDataUnsafe?.user?.id;
-    const username = tg.initDataUnsafe?.user?.username;
 
     async function fetchTasks() {
       try {
-        const filterFormula = '%7B%D0%A1%D1%82%D0%B0%D1%82%D1%83%D1%81%7D%3D%22%D0%9D%D0%BE%D0%B2%D0%BE%D0%B5%22';
-        const fullUrl = `${apiUrl}?filterByFormula=${filterFormula}`;
-        console.log("📡 Запрос к Airtable:", fullUrl);
-
-        const response = await fetch(fullUrl, {
+        const response = await fetch(apiUrl, {
           headers: {
             Authorization: `Bearer ${airtableApiKey}`
           }
@@ -120,7 +114,7 @@
             <p><strong>Описание:</strong> ${fields['Описание'] || 'Нет данных'}</p>
             <p><strong>Цена:</strong> ${fields['Цена'] || '—'}</p>
             <p><strong>Дедлайн:</strong> ${fields['Дедлайн'] || '—'}</p>
-            <button class="btn-take" onclick="confirmTake('${taskId}', '${fields['Пользователь Telegram'] || ''}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>
+            <button class="btn-take" onclick="confirmTake('${taskId}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>
           `;
 
           tasksContainer.appendChild(task);
@@ -128,21 +122,18 @@
 
       } catch (error) {
         document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
-        console.error('❌ Ошибка при загрузке заданий:', error);
+        console.error('Ошибка при загрузке заданий:', error);
       }
     }
 
-    async function confirmTake(taskId, customerUsername, subject, description, price, deadline) {
+    async function confirmTake(taskId, subject, description, price, deadline) {
       const confirmed = confirm("Вы уверены, что хотите взять это задание в работу?");
       if (!confirmed) return;
 
       try {
         const updateUrl = `${apiUrl}/${taskId}`;
         const updateData = {
-          fields: {"Статус": "В работе",
-            "ID пользователя": String(userId),
-            "Пользователь Telegram": username
-          }
+          fields: { Статус: "В работе" }
         };
 
         const response = await fetch(updateUrl, {
@@ -154,15 +145,15 @@
           body: JSON.stringify(updateData)
         });
 
-        const result = await response.json();
-        console.log("🛠 Результат обновления задания:", result);
-
         if (response.ok) {
+          // Удаляем элемент со страницыconst taskElement = document.getElementById(`task-${taskId}`);
           const taskElement = document.getElementById(`task-${taskId}`);
-          if (taskElement) taskElement.remove();
+if (taskElement) taskElement.remove();
 
+          // Сворачиваем WebApp
           tg.close();
 
+          // Показываем сообщение
           const message = `
 ✅ Вы успешно взяли задание в работу!
 📚 Предмет: ${subject}
@@ -170,19 +161,19 @@
 💰 Оплата: ${price} ₽
 ⏰ Дедлайн: ${deadline}
 
-📩 Контакт заказчика: @${customerUsername || 'не указан'}
-
-⚠️ Важно: выполните задание в срок. В случае невыполнения — возможна блокировка.
-💸 После подтверждения выполнения средства будут автоматически переведены.
+⚠️ Не забудьте выполнить задание в срок. В случае невыполнения — блокировка.
+💸 После подтверждения выполнения средства будут переведены вам автоматически.
           `;
           alert(message);
         } else {
-          console.error("❌ Ошибка обновления задания:", result);
-          alert("Не удалось обновить статус задания.");
+          const errorText = await response.text();
+          console.error("Ошибка обновления задания:", errorText);
+          alert("❌ Не удалось обновить статус задания. Попробуйте позже.");
         }
+
       } catch (error) {
-        console.error("❌ Ошибка при взятии задания:", error);
-        alert("Произошла ошибка. Попробуйте позже.");
+        console.error("Ошибка при взятии задания:", error);
+        alert("❌ Произошла ошибка. Попробуйте позже.");
       }
     }
 
