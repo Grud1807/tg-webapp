@@ -66,6 +66,10 @@
       font-weight: bold;
       font-size: 14px;
     }
+
+    .inactive-task {
+      opacity: 0.6;
+    }
   </style>
 </head>
 <body>
@@ -86,7 +90,6 @@
 
     async function fetchTasks() {
       try {
-        console.log("📡 Загружаем задания с Airtable без фильтрации...");
         const response = await fetch(apiUrl, {
           headers: {
             Authorization: `Bearer ${airtableApiKey}`
@@ -102,33 +105,48 @@
           return;
         }
 
+        const newTasks = [];
+        const otherTasks = [];
+
         data.records.forEach(record => {
           const taskId = record.id;
           const fields = record.fields;
+          const status = fields['Статус'] || 'Без статуса';
 
           const task = document.createElement('div');
           task.className = 'task';
           task.id = `task-${taskId}`;
 
-          task.innerHTML = `
+          let taskContent = `
             <h3>${fields['Предмет'] || 'Без предмета'}</h3>
             <p><strong>Описание:</strong> ${fields['Описание'] || 'Нет данных'}</p>
             <p><strong>Цена:</strong> ${fields['Цена'] || '—'}</p>
             <p><strong>Дедлайн:</strong> ${fields['Дедлайн'] || '—'}</p>
-            <button class="btn-take" onclick="confirmTake('${taskId}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>
           `;
 
-          tasksContainer.appendChild(task);
+          if (status === 'Новое') {
+            taskContent += <button class="btn-take" onclick="confirmTake('${taskId}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>;
+            task.innerHTML = taskContent;
+            newTasks.push(task);
+          } else {
+            task.classList.add('inactive-task');
+            taskContent += <p><em>Статус: ${status}</em></p>;
+            task.innerHTML = taskContent;
+            otherTasks.push(task);
+          }
         });
+
+        newTasks.forEach(t => tasksContainer.appendChild(t));
+        otherTasks.forEach(t => tasksContainer.appendChild(t));
 
       } catch (error) {
         document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
-        console.error('❌ Ошибка при загрузке заданий:', error);
+        console.error('Ошибка при загрузке заданий:', error);
       }
     }
 
-    async function confirmTake(taskId, subject, description, price, deadline) {
-      const confirmed = confirm("Вы уверены, что хотите взять это задание в работу?");
+    async function confirmTake(taskId, subject, description, price, deadline)
+      {const confirmed = confirm("Вы уверены, что хотите взять это задание в работу?");
       if (!confirmed) return;
 
       try {
@@ -144,15 +162,14 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(updateData)
-        });if (response.ok) {
-          // Удаляем задание со страницы
+        });
+
+        if (response.ok) {
           const taskElement = document.getElementById(`task-${taskId}`);
           if (taskElement) taskElement.remove();
 
-          // Сворачиваем WebApp
           tg.close();
 
-          // Показываем сообщение
           const message = `
 ✅ Вы успешно взяли задание в работу!
 📚 Предмет: ${subject}
@@ -166,12 +183,12 @@
           alert(message);
         } else {
           const errorText = await response.text();
-          console.error("❌ Ошибка обновления задания:", errorText);
+          console.error("Ошибка обновления задания:", errorText);
           alert("❌ Не удалось обновить статус задания. Попробуйте позже.");
         }
 
       } catch (error) {
-        console.error("❌ Ошибка при взятии задания:", error);
+        console.error("Ошибка при взятии задания:", error);
         alert("❌ Произошла ошибка. Попробуйте позже.");
       }
     }
