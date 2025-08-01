@@ -136,7 +136,7 @@
           fields: { Статус: "В работе" }
         };
 
-        const response = await fetch(updateUrl, {
+const response = await fetch(`${apiUrl}?filterByFormula=Статус%3D%22Новое%22`, {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${airtableApiKey}`,
