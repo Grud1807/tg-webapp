@@ -90,54 +90,87 @@
   const tg = window.Telegram.WebApp;
   tg.ready();
 
-  let currentUserId = null;
-
-  tg.getUser ? currentUserId = tg.getUser().id : tg.expand(); // fallback
-
-const status = fields['Статус'] || 'Без статуса';
-      const userId = fields['ID пользователя'];
-
-      const task = document.createElement('div');
-      task.className = 'task';
-      task.id = `task-${taskId}`;
-
-      let taskContent = `
-        <h3>${fields['Предмет'] || 'Без предмета'}</h3>
-        <p><strong>Описание:</strong> ${fields['Описание'] || 'Нет данных'}</p>
-        <p><strong>Цена:</strong> ${fields['Цена'] || '—'}</p>
-        <p><strong>Дедлайн:</strong> ${fields['Дедлайн'] || '—'}</p>
-      `;
-
-      if (status === 'Новое') {
-        if (userId == user.id) {
-          taskContent += `<p><em>❗ Вы автор этого задания</em></p>`;
-          task.classList.add('inactive-task');
-          otherTasks.push(task);
-        } else if (hasActiveTask) {
-          taskContent += `<p><em>⛔ У вас уже есть задание в работе</em></p>`;
-          task.classList.add('inactive-task');
-          otherTasks.push(task);
-        } else {
-          taskContent += `<button class="btn-take" onclick="confirmTake('${taskId}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>`;
-          task.innerHTML = taskContent;
-          newTasks.push(task);
+  async function fetchTasks() {
+    try {
+      const response = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${airtableApiKey}`
         }
-      } else {
-        taskContent += `<p><em>Статус: ${status}</em></p>`;
-        task.classList.add('inactive-task');
-        task.innerHTML = taskContent;
-        otherTasks.push(task);
+      });
+
+      const data = await response.json();
+      const tasksContainer = document.getElementById('tasks-list');
+      tasksContainer.innerHTML = '';
+
+      if (!data.records || data.records.length === 0) {
+        tasksContainer.innerHTML = '<p>Пока нет заданий.</p>';
+        return;
       }
-    });
 
-    [...newTasks, ...otherTasks].forEach(task => document.getElementById('tasks-list').appendChild(task));
+      const user = tg.initDataUnsafe?.user;
+      if (!user || !user.id) {
+        console.error("❌ Не удалось получить данные пользователя.");
+        tasksContainer.innerHTML = '<p>Ошибка авторизации в Telegram WebApp.</p>';
+        return;
+      }
 
-  } catch (error) {
-    document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
-    console.error('Ошибка при загрузке заданий:', error);
-    alert("❌ Ошибка при загрузке заданий: " + error.message);
+      const newTasks = [];
+      const otherTasks = [];
+      let hasActiveTask = false;
+
+      data.records.forEach(r => {
+        const f = r.fields;
+        if (f['ID пользователя'] == user.id && f['Статус'] === 'В работе') {
+          hasActiveTask = true;
+        }
+      });
+
+      data.records.forEach(record => {
+        const taskId = record.id;
+        const fields = record.fields;
+        const status = fields['Статус'] || 'Без статуса';
+        const userId = fields['ID пользователя'];
+
+        const task = document.createElement('div');
+        task.className = 'task';
+        task.id = `task-${taskId}`;
+
+        let taskContent = `
+          <h3>${fields['Предмет'] || 'Без предмета'}</h3>
+          <p><strong>Описание:</strong> ${fields['Описание'] || 'Нет данных'}</p>
+          <p><strong>Цена:</strong> ${fields['Цена'] || '—'}</p>
+          <p><strong>Дедлайн:</strong> ${fields['Дедлайн'] || '—'}</p>
+        `;
+
+        if (status === 'Новое') {
+          if (userId == user.id) {
+            taskContent += `<p><em>❗️ Вы автор этого задания</em></p>`;
+            task.classList.add('inactive-task');
+            otherTasks.push(task);
+          } else if (hasActiveTask) {
+            taskContent += `<p><em>⛔️ У вас уже есть задание в работе</em></p>`;
+            task.classList.add('inactive-task');
+            otherTasks.push(task);
+          } else {
+            taskContent += `<button class="btn-take" onclick="confirmTake('${taskId}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>`;
+            task.innerHTML = taskContent;
+            newTasks.push(task);
+          }
+        } else {
+          taskContent += `<p><em>Статус: ${status}</em></p>`;
+          task.classList.add('inactive-task');
+          task.innerHTML = taskContent;
+          otherTasks.push(task);
+        }
+      });
+
+      [...newTasks, ...otherTasks].forEach(task => tasksContainer.appendChild(task));
+    } catch (error) {
+      document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
+      console.error('Ошибка при загрузке заданий:', error);
+      alert("❌ Ошибка при загрузке заданий: " + error.message);
+    }
   }
-}
 
   async function confirmTake(taskId, subject, description, price, deadline) {
     const confirmed = confirm("Вы уверены, что хотите взять это задание в работу?");
@@ -163,8 +196,7 @@ const status = fields['Статус'] || 'Без статуса';
       });
 
       if (response.ok) {
-        const taskElement = document.getElementById(`task-${taskId}`);
-        if (taskElement) taskElement.remove();
+        const taskElement = document.getElementById(`task-${taskId}`);if (taskElement) taskElement.remove();
 
         const message = `
 ✅ Вы успешно взяли задание в работу!
