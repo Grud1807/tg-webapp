@@ -125,12 +125,12 @@
           `;
 
           if (status === 'Новое') {
-            taskContent += <button class="btn-take" onclick="confirmTake('${taskId}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>;
+            taskContent += `<button class="btn-take" onclick="confirmTake('${taskId}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>`;
             task.innerHTML = taskContent;
             newTasks.push(task);
           } else {
             task.classList.add('inactive-task');
-            taskContent += <p><em>Статус: ${status}</em></p>;
+            taskContent += `<p><em>Статус: ${status}</em></p>`;
             task.innerHTML = taskContent;
             otherTasks.push(task);
           }
