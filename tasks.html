@@ -54,6 +54,10 @@
       background-color: #155ab6;
     }
 
+    .inactive-task {
+      opacity: 0.5;
+    }
+
     .back-button {
       position: fixed;
       top: 10px;
@@ -65,10 +69,6 @@
       text-decoration: none;
       font-weight: bold;
       font-size: 14px;
-    }
-
-    .inactive-task {
-      opacity: 0.6;
     }
   </style>
 </head>
@@ -136,8 +136,8 @@
           }
         });
 
-        newTasks.forEach(t => tasksContainer.appendChild(t));
-        otherTasks.forEach(t => tasksContainer.appendChild(t));
+        // Сначала новые задания, потом остальные
+        [...newTasks, ...otherTasks].forEach(task => tasksContainer.appendChild(task));
 
       } catch (error) {
         document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
@@ -145,8 +145,8 @@
       }
     }
 
-    async function confirmTake(taskId, subject, description, price, deadline)
-      {const confirmed = confirm("Вы уверены, что хотите взять это задание в работу?");
+    async function confirmTake(taskId, subject, description, price, deadline) {
+      const confirmed = confirm("Вы уверены, что хотите взять это задание в работу?");
       if (!confirmed) return;
 
       try {
