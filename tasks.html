@@ -12,11 +12,13 @@
       margin: 0;
       padding: 0;
     }
+
     .container {
       padding: 20px;
       max-width: 600px;
       margin: auto;
     }
+
     .task {
       background-color: #fff;
       border-radius: 10px;
@@ -24,14 +26,17 @@
       padding: 16px;
       margin-bottom: 16px;
     }
+
     .task h3 {
       margin: 0 0 10px;
       color: #1a237e;
     }
+
     .task p {
       margin: 4px 0;
       color: #333;
     }
+
     .btn-take {
       margin-top: 10px;
       display: inline-block;
@@ -44,9 +49,11 @@
       border: none;
       cursor: pointer;
     }
+
     .btn-take:hover {
       background-color: #155ab6;
     }
+
     .back-button {
       position: fixed;
       top: 10px;
@@ -79,14 +86,12 @@
 
     async function fetchTasks() {
       try {
-        const filterFormula = encodeURIComponent(`{Статус}="Новое"`);  // ✅ фильтрация
-        const response = await fetch(`${apiUrl}?filterByFormula=${filterFormula}`, {
+        console.log("📡 Загружаем задания с Airtable без фильтрации...");
+        const response = await fetch(apiUrl, {
           headers: {
             Authorization: `Bearer ${airtableApiKey}`
           }
         });
-
-        console.log("📡 Запрос к Airtable:", `${apiUrl}?filterByFormula=${filterFormula}`);
 
         const data = await response.json();
         const tasksContainer = document.getElementById('tasks-list');
@@ -134,18 +139,20 @@
 
         const response = await fetch(updateUrl, {
           method: 'PATCH',
-          headers: {Authorization:` Bearer ${airtableApiKey}`,
+          headers: {
+            Authorization: `Bearer ${airtableApiKey}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(updateData)
-        });
-
-        if (response.ok) {
+        });if (response.ok) {
+          // Удаляем задание со страницы
           const taskElement = document.getElementById(`task-${taskId}`);
           if (taskElement) taskElement.remove();
 
+          // Сворачиваем WebApp
           tg.close();
 
+          // Показываем сообщение
           const message = `
 ✅ Вы успешно взяли задание в работу!
 📚 Предмет: ${subject}
