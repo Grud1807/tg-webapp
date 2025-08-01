@@ -12,13 +12,11 @@
       margin: 0;
       padding: 0;
     }
-
     .container {
       padding: 20px;
       max-width: 600px;
       margin: auto;
     }
-
     .task {
       background-color: #fff;
       border-radius: 10px;
@@ -26,17 +24,14 @@
       padding: 16px;
       margin-bottom: 16px;
     }
-
     .task h3 {
       margin: 0 0 10px;
       color: #1a237e;
     }
-
     .task p {
       margin: 4px 0;
       color: #333;
     }
-
     .btn-take {
       margin-top: 10px;
       display: inline-block;
@@ -49,11 +44,9 @@
       border: none;
       cursor: pointer;
     }
-
     .btn-take:hover {
       background-color: #155ab6;
     }
-
     .back-button {
       position: fixed;
       top: 10px;
@@ -86,11 +79,14 @@
 
     async function fetchTasks() {
       try {
-        const response = await fetch(apiUrl, {
+        const filterFormula = encodeURIComponent(`{Статус}="Новое"`);  // ✅ фильтрация
+        const response = await fetch(`${apiUrl}?filterByFormula=${filterFormula}`, {
           headers: {
             Authorization: `Bearer ${airtableApiKey}`
           }
         });
+
+        console.log("📡 Запрос к Airtable:", `${apiUrl}?filterByFormula=${filterFormula}`);
 
         const data = await response.json();
         const tasksContainer = document.getElementById('tasks-list');
@@ -122,7 +118,7 @@
 
       } catch (error) {
         document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
-        console.error('Ошибка при загрузке заданий:', error);
+        console.error('❌ Ошибка при загрузке заданий:', error);
       }
     }
 
@@ -138,22 +134,18 @@
 
         const response = await fetch(updateUrl, {
           method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${airtableApiKey}`,
+          headers: {Authorization:` Bearer ${airtableApiKey}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(updateData)
         });
 
         if (response.ok) {
-          // Удаляем элемент со страницыconst taskElement = document.getElementById(`task-${taskId}`);
           const taskElement = document.getElementById(`task-${taskId}`);
-if (taskElement) taskElement.remove();
+          if (taskElement) taskElement.remove();
 
-          // Сворачиваем WebApp
           tg.close();
 
-          // Показываем сообщение
           const message = `
 ✅ Вы успешно взяли задание в работу!
 📚 Предмет: ${subject}
@@ -167,12 +159,12 @@ if (taskElement) taskElement.remove();
           alert(message);
         } else {
           const errorText = await response.text();
-          console.error("Ошибка обновления задания:", errorText);
+          console.error("❌ Ошибка обновления задания:", errorText);
           alert("❌ Не удалось обновить статус задания. Попробуйте позже.");
         }
 
       } catch (error) {
-        console.error("Ошибка при взятии задания:", error);
+        console.error("❌ Ошибка при взятии задания:", error);
         alert("❌ Произошла ошибка. Попробуйте позже.");
       }
     }
