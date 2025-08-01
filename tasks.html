@@ -99,7 +99,7 @@ const status = fields['Статус'] || 'Без статуса';
 
       const task = document.createElement('div');
       task.className = 'task';
-      task.id = task-${taskId};
+      task.id = `task-${taskId}`;
 
       let taskContent = `
         <h3>${fields['Предмет'] || 'Без предмета'}</h3>
