@@ -83,12 +83,14 @@
     const tableName = 'Tasks';
     const apiUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
     const tg = window.Telegram.WebApp;
+    const userId = tg.initDataUnsafe?.user?.id;
 
     async function fetchTasks() {
       try {
-        const response = await fetch(apiUrl, {
+        const encodedFormula = encodeURIComponent(`{Статус} = "Новое"`);
+        const response = await fetch(`${apiUrl}?filterByFormula=${encodedFormula}`, {
           headers: {
-            Authorization:` Bearer ${airtableApiKey}`
+            Authorization: `Bearer ${airtableApiKey}`
           }
         });
 
@@ -122,7 +124,7 @@
 
       } catch (error) {
         document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
-        console.error('Ошибка при загрузке заданий:', error);
+        console.error('[fetchTasks] Ошибка при загрузке:', error);
       }
     }
 
@@ -131,12 +133,12 @@
       if (!confirmed) return;
 
       try {
-        const updateUrl = `${apiUrl}/${taskId}`;
+        const updateUrl =` ${apiUrl}/${taskId}`;
         const updateData = {
-          fields: { Статус: "В работе" }
+          fields: { "Статус": "В работе" }
         };
 
-const response = await fetch(`${apiUrl}?filterByFormula=Статус%3D%22Новое%22`, {
+        const response = await fetch(updateUrl, {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${airtableApiKey}`,
@@ -146,13 +148,9 @@ const response = await fetch(`${apiUrl}?filterByFormula=Статус%3D%22Нов
         });
 
         if (response.ok) {
-          // Удаляем элемент со страницыconst taskElement = document.getElementById(`task-${taskId}`);
           const taskElement = document.getElementById(`task-${taskId}`);
-if (taskElement) taskElement.remove();
-          // Сворачиваем WebApp
-          tg.close();
+          if (taskElement) taskElement.remove();
 
-          // Показываем сообщение
           const message = `
 ✅ Вы успешно взяли задание в работу!
 📚 Предмет: ${subject}
@@ -163,16 +161,19 @@ if (taskElement) taskElement.remove();
 ⚠️ Не забудьте выполнить задание в срок. В случае невыполнения — блокировка.
 💸 После подтверждения выполнения средства будут переведены вам автоматически.
           `;
+
           alert(message);
+          tg.close();
+
         } else {
           const errorText = await response.text();
-          console.error("Ошибка обновления задания:", errorText);
-          alert("❌ Не удалось обновить статус задания. Попробуйте позже.");
+          console.error('[confirmTake] Ошибка обновления задания:', errorText);
+          alert("❌ Не удалось обновить статус задания. Проверь консоль.");
         }
 
       } catch (error) {
-        console.error("Ошибка при взятии задания:", error);
-        alert("❌ Произошла ошибка. Попробуйте позже.");
+        console.error('[confirmTake] Ошибка при взятии задания:', error);
+        alert("❌ Произошла ошибка. Подробности — в консоли.");
       }
     }
 
