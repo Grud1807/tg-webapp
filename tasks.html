@@ -129,9 +129,9 @@
             task.innerHTML = taskContent;
             newTasks.push(task);
           } else {
-            task.classList.add('inactive-task');
             taskContent += `<p><em>Статус: ${status}</em></p>`;
             task.innerHTML = taskContent;
+            task.classList.add('inactive-task');
             otherTasks.push(task);
           }
         });
