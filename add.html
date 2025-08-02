@@ -1,132 +1,146 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Добавить задание</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f3f6fa;
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f0f4ff;
-      color: #1a1a1a;
+      padding: 0;
     }
-
     .container {
-      max-width: 400px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: white;
+      max-width: 500px;
+      margin: 60px auto;
+      background: #fff;
+      padding: 25px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      margin-top: 30px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
     }
-
-    .logo {
-      display: block;
-      margin: 0 auto 20px;
-      width: 90px;
-    }
-
-    .back-btn {
-      display: block;
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 16px;
-      color: #0056d2;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
     h2 {
       text-align: center;
-      margin-bottom: 20px;
-      color: #003a9c;
+      color: #1a237e;
     }
-
     label {
-      font-weight: 600;
+      font-weight: bold;
       margin-top: 10px;
       display: block;
-      margin-bottom: 6px;
     }
-
     input, textarea {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
+      margin-top: 4px;
       margin-bottom: 15px;
-      border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 14px;
+      border-radius: 8px;
       box-sizing: border-box;
     }
-
-    input[type="date"] {
-      color: #333;
-      background-color: #fff;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    .btn-submit {
+    button {
       width: 100%;
       padding: 12px;
-      background-color: #0056d2;
+      background-color: #1a73e8;
       color: white;
+      font-weight: bold;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.2s ease-in-out;
+      font-size: 16px;
     }
-
-    .btn-submit:hover {
-      background-color: #0040a8;
+    button:hover {
+      background-color: #0f5bbd;
+    }
+    .back-button {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background-color: #e3e9f4;
+      color: #1a237e;
+      padding: 6px 14px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
+  <a href="index.html" class="back-button">← Назад</a>
+
   <div class="container">
-    <a href="index.html" class="back-btn">Назад</a>
-
-    <img src="logo.png" alt="STUDENTUS" class="logo" />
-
-    <h2>➕ Новое задание</h2>
-
-    <form onsubmit="submitForm(); return false;">
-
+    <h2>➕ Добавить задание</h2>
+    <form id="task-form">
       <label for="subject">Предмет</label>
-      <input type="text" id="subject" placeholder="Например: Математика" required />
+      <input type="text" id="subject" placeholder="Например: Математика" required>
 
       <label for="description">Описание</label>
-      <textarea id="description" placeholder="Что нужно сделать?" required></textarea>
+      <textarea id="description" rows="4" placeholder="Например: Решить 3 задачи из варианта" required></textarea>
 
       <label for="price">Цена (₽)</label>
-      <input type="number" id="price" placeholder="Например: 300" required />
+      <input type="number" id="price" placeholder="Например: 300" required>
 
       <label for="deadline">Дедлайн</label>
-      <input type="date" id="deadline" required />
+      <input type="date" id="deadline" required>
 
-      <button type="submit" class="btn-submit">📩 Отправить</button>
+      <button type="submit">📨 Отправить</button>
     </form>
   </div>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    function submitForm() {
-      const data = {
-        subject: document.getElementById("subject").value,
-        description: document.getElementById("description").value,
-        price: Number(document.getElementById("price").value),
-        deadline: document.getElementById("deadline").value
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+
+    const form = document.getElementById("task-form");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const subject = document.getElementById("subject").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const price = document.getElementById("price").value.trim();
+      const deadline = document.getElementById("deadline").value;
+
+      const user = tg.initDataUnsafe?.user || {
+        id: 123456789,
+        username: "testuser"
+      }; // Фейковый пользователь для тестов в браузере
+
+      const deadlineFormatted = deadline.split("-").reverse().join(".");
+
+      const task = {
+        subject,
+        description,
+        price,
+        deadline: deadlineFormatted,
+        user_id: user.id,
+        username: user.username || "без username"
       };
 
-      Telegram.WebApp.sendData(JSON.stringify(data));
-      Telegram.WebApp.close();
-    }
+      try {
+        const response = await fetch("http://127.0.0.1:8000/add-task", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(task)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert("✅ Задание успешно добавлено!\n\nКогда исполнитель возьмёт его в работу, вы получите сообщение в Telegram.");
+          tg.close(); // сворачиваем WebApp
+        } else {
+          alert("❌ Не удалось отправить задание: " + result.error);
+        }
+
+      } catch (error) {
+        console.error("Ошибка при отправке:", error);
+        alert("⚠️ Ошибка при отправке задания. Попробуйте позже.");
+      }
+    });
   </script>
 </body>
 </html>
