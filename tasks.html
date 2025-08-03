@@ -82,18 +82,16 @@
   <script>
     const apiUrl = "https://api.airtable.com/v0/appTpq4tdeQ27uxQ9/Tasks";
     const airtableApiKey = "patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4";
-    const botToken = "8101750587:AAEoO1Aote7wHIRDADD4kpwFyYOYIkibe_c";
+    const takeTaskUrl = "https://0ebf95223ab9.ngrok-free.app/take-task"; // ⬅️ заменяй, если ссылка обновится
     const tg = window.Telegram.WebApp;
     tg.ready();
 
-    const user = tg.initDataUnsafe?.user || { id: 0, username: "unknown" };
+    const user = tg.initDataUnsafe?.user || { id: 0, username: "testuser" };
 
     async function fetchTasks() {
       try {
         const response = await fetch(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${airtableApiKey}`
-          }
+          headers: { Authorization: `Bearer ${airtableApiKey} `}
         });
 
         const data = await response.json();
@@ -104,7 +102,6 @@
         const otherTasks = [];
         let hasActiveTask = false;
 
-        // Сначала проверим, есть ли уже активное задание
         data.records.forEach(record => {
           const status = record.fields['Статус'];
           const executorId = record.fields['ID пользователя'];
@@ -122,7 +119,7 @@
 
           const task = document.createElement('div');
           task.className = 'task';
-          task.id = `task-${taskId}`;
+          task.id = task-${taskId};
 
           let content = `
             <h3>${fields['Предмет'] || 'Без предмета'}</h3>
@@ -135,10 +132,12 @@
             if (ownerId == user.id) {
               content += `<p><em>❗️ Вы автор этого задания</em></p>`;
               task.classList.add('inactive-task');
+              task.innerHTML = content;
               otherTasks.push(task);
             } else if (hasActiveTask) {
-              content += `<p><em>⛔ У вас уже есть активное задание</em></p>`;
+              content += `<p><em>⛔️ У вас уже есть активное задание</em></p>`;
               task.classList.add('inactive-task');
+              task.innerHTML = content;
               otherTasks.push(task);
             } else {content += `<button class="btn-take" onclick="takeTask('${taskId}', '${customerUsername}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>`;
               task.innerHTML = content;
@@ -152,7 +151,7 @@
           }
         });
 
-        [...newTasks, ...otherTasks].forEach(t => document.getElementById("tasks-list").appendChild(t));
+        [...newTasks, ...otherTasks].forEach(t => tasksContainer.appendChild(t));
       } catch (err) {
         console.error("❌ Ошибка загрузки:", err);
         document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
@@ -160,61 +159,35 @@
     }
 
     async function takeTask(taskId, customerUsername, subject, description, price, deadline) {
-      const confirmMsg = "Вы уверены, что хотите взять это задание в работу?";
-      if (!confirm(confirmMsg)) return;
+      const confirmed = confirm("Вы уверены, что хотите взять это задание в работу?");
+      if (!confirmed) return;
 
       try {
-        const patch = await fetch(`${apiUrl}/${taskId}`, {
-          method: 'PATCH',
+        const res = await fetch(takeTaskUrl, {
+          method: 'POST',
           headers: {
-            Authorization: `Bearer ${airtableApiKey}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            fields: {
-              "Статус": "В работе",
-              "ID пользователя": user.id,
-              "Пользователь Telegram": user.username || "без username"
-            }
+            record_id: taskId,
+            executor_id: user.id,
+            executor_username: user.username || "без username"
           })
         });
 
-        if (!patch.ok) {
-          const errText = await patch.text();
-          console.error("❌ Ошибка обновления:", errText);
-          alert("❌ Не удалось взять задание. Попробуйте позже.");
-          return;
+        const result = await res.json();
+
+        if (result.success) {
+          alert(`✅ Вы взяли задание!\n\n📚 ${subject}\n📝 ${description}\n💰 ${price} ₽\n⏰ ${deadline}\n\nКонтакт заказчика: @${customerUsername}`);
+          const taskEl = document.getElementById(`task-${taskId}`);
+          if (taskEl) taskEl.remove();
+          tg.close();
+        } else {
+          alert("❌ Не удалось взять задание: " + result.error);
+          console.error("Ошибка:", result.error);
         }
-
-        // Удаляем карточку задания
-        const taskElement = document.getElementById(`task-${taskId}`);
-        if (taskElement) taskElement.remove();
-
-        // Уведомление
-        const message = `
-✅ Вы взяли задание!
-📚 Предмет: ${subject}
-📝 Описание: ${description}
-💰 Цена: ${price} ₽
-⏰ Дедлайн: ${deadline}
-
-👤 Контакт заказчика: @${customerUsername}
-💬 Свяжитесь с ним и уточните детали.
-
-❗️ Выполните задание в срок. За невыполнение — блокировка. Деньги поступят после подтверждения выполнения обеими сторонами.
-        `;
-        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: user.id,
-            text: message
-          })
-        });
-
-        tg.close();
       } catch (err) {
-        console.error("❌ Ошибка при взятии задания:", err);
+        console.error("❌ Ошибка запроса:", err);
         alert("Ошибка при взятии задания. Проверьте соединение.");
       }
     }
