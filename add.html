@@ -1,57 +1,60 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Добавить задание</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: Arial, sans-serif;
       background-color: #f3f6fa;
       margin: 0;
       padding: 0;
     }
+
     .container {
-      max-width: 500px;
-      margin: 60px auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
     }
+
     h2 {
-      text-align: center;
       color: #1a237e;
     }
+
     label {
-      font-weight: bold;
-      margin-top: 10px;
       display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
     }
-    input, textarea {
+
+    input, textarea, select {
       width: 100%;
       padding: 10px;
-      margin-top: 4px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
       border-radius: 8px;
+      border: 1px solid #ccc;
       box-sizing: border-box;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #1a73e8;
-      color: white;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
       font-size: 16px;
     }
-    button:hover {
-      background-color: #0f5bbd;
+
+    .btn {
+      margin-top: 20px;
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
     }
+
+    .btn:hover {
+      background-color: #155ab6;
+    }
+
     .back-button {
       position: fixed;
       top: 10px;
@@ -68,77 +71,74 @@
 </head>
 <body>
   <a href="index.html" class="back-button">← Назад</a>
-
   <div class="container">
-    <h2>➕ Добавить задание</h2>
-    <form id="task-form">
+    <h2>📥 Добавить задание</h2>
+    <form id="taskForm">
       <label for="subject">Предмет</label>
-      <input type="text" id="subject" placeholder="Например: Математика" required>
+      <input type="text" id="subject" name="subject" placeholder="Пример: Математика" required />
 
-      <label for="description">Описание</label>
-      <textarea id="description" rows="4" placeholder="Например: Решить 3 задачи из варианта" required></textarea>
+      <label for="description">Описание задания</label>
+      <textarea id="description" name="description" rows="4" placeholder="Пример: Решить 5 задач на производную" required></textarea>
 
       <label for="price">Цена (₽)</label>
-      <input type="number" id="price" placeholder="Например: 300" required>
+      <input type="number" id="price" name="price" placeholder="Пример: 300" required />
 
-      <label for="deadline">Дедлайн</label>
-      <input type="date" id="deadline" required>
+      <label for="deadline">Дедлайн (дд.мм)</label>
+      <input type="text" id="deadline" name="deadline" placeholder="Пример: 17.08" required />
 
-      <button type="submit">📨 Отправить</button>
+      <button type="submit" class="btn">🚀 Отправить</button>
     </form>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
-    tg.ready();
+    tg.expand();
 
-    const form = document.getElementById("task-form");
-
-    form.addEventListener("submit", async (e) => {
+    document.getElementById('taskForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      const subject = document.getElementById("subject").value.trim();
-      const description = document.getElementById("description").value.trim();
-      const price = document.getElementById("price").value.trim();
-      const deadline = document.getElementById("deadline").value;
+      const subject = document.getElementById('subject').value;
+      const description = document.getElementById('description').value;
+      const price = document.getElementById('price').value;
+      const deadline = document.getElementById('deadline').value;
 
-      const user = tg.initDataUnsafe?.user || {
-        id: 123456789,
-        username: "testuser"
-      }; // Фейковый пользователь для тестов в браузере
+      const user = tg.initDataUnsafe?.user;
 
-      const deadlineFormatted = deadline.split("-").reverse().join(".");
+      if (!user) {
+        alert("❌ Не удалось получить данные пользователя.");
+        return;
+      }
 
-      const task = {
+      const payload = {
         subject,
         description,
         price,
-        deadline: deadlineFormatted,
+        deadline,
         user_id: user.id,
-        username: user.username || "без username"
+        username: user.username || ""
       };
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/add-task", {
-          method: "POST",
+        const response = await fetch('http://127.0.0.1:8000/add-task', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify(task)
+          body: JSON.stringify(payload)
         });
 
         const result = await response.json();
 
         if (result.success) {
-          alert("✅ Задание успешно добавлено!\n\nКогда исполнитель возьмёт его в работу, вы получите сообщение в Telegram.");
-          tg.close(); // сворачиваем WebApp
+          alert("✅ Задание успешно добавлено!\nКак только исполнитель возьмет его — вы получите уведомление.");
+          tg.close();
         } else {
-          alert("❌ Не удалось отправить задание: " + result.error);
+          alert("❌ Ошибка: " + result.error);
         }
 
       } catch (error) {
         console.error("Ошибка при отправке:", error);
-        alert("⚠️ Ошибка при отправке задания. Попробуйте позже.");
+        alert("❌ Ошибка при отправке задания: " + error.message);
       }
     });
   </script>
