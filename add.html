@@ -2,118 +2,123 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Добавить задание</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       background-color: #f3f6fa;
       margin: 0;
       padding: 20px;
     }
 
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    h2 {
+      color: #1a237e;
+      text-align: center;
     }
 
-    h2 {
-      text-align: center;
-      color: #1a237e;
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: auto;
     }
 
     label {
-      font-weight: bold;
-      margin-top: 10px;
       display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: bold;
     }
 
     input, textarea {
       width: 100%;
       padding: 10px;
-      margin-top: 4px;
-      margin-bottom: 12px;
-      border-radius: 6px;
+      margin-bottom: 16px;
       border: 1px solid #ccc;
+      border-radius: 8px;
       font-size: 16px;
     }
 
     button {
+      width: 100%;
       background-color: #1a73e8;
       color: white;
-      border: none;
       padding: 12px;
-      border-radius: 8px;
+      border: none;
+      border-radius: 10px;
       font-size: 16px;
-      width: 100%;
+      font-weight: bold;
       cursor: pointer;
     }
 
     button:hover {
-      background-color: #0f5bd6;
+      background-color: #155ab6;
     }
 
-    .success {
-      background-color: #d0f2d0;
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 12px;
-      color: #155724;
+    .back-button {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background-color: #e3e9f4;
+      color: #1a237e;
+      padding: 6px 14px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 20px;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>➕ Добавить задание</h2>
-    <form id="taskForm">
-      <label>Предмет (например: Математика)</label>
-      <input type="text" id="subject" required placeholder="Пример: Физика" />
+  <a href="index.html" class="back-button">← Назад</a>
+  <h2>Добавить задание</h2>
+  <form id="task-form">
+    <label>Предмет:</label>
+    <input type="text" id="subject" required>
 
-      <label>Описание</label>
-      <textarea id="description" required placeholder="Что нужно сделать?"></textarea>
+    <label>Описание задания:</label>
+    <textarea id="description" required></textarea>
 
-      <label>Цена (в рублях)</label>
-      <input type="number" id="price" required placeholder="Пример: 300" />
+    <label>Цена (в ₽):</label>
+    <input type="number" id="price" required>
 
-      <label>Дедлайн (ДД.ММ)</label>
-      <input type="text" id="deadline" required placeholder="Пример: 17.08" />
+    <label>Дедлайн (дд.мм):</label>
+    <input type="text" id="deadline" placeholder="Например, 17.08" required>
 
-      <button type="submit">📤 Отправить</button>
-    </form>
-
-    <div id="message"></div>
-  </div>
+    <button type="submit">Отправить</button>
+    <div class="message" id="message"></div>
+  </form>
 
   <script>
+    const form = document.getElementById("task-form");
+    const messageEl = document.getElementById("message");
     const tg = window.Telegram.WebApp;
-    tg.expand(); // Расширяем WebApp
-    tg.ready();
 
-    const form = document.getElementById("taskForm");
-    const messageBlock = document.getElementById("message");
-
-    form.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async function (e) {
       e.preventDefault();
-      messageBlock.innerHTML = "⏳ Отправка...";
 
-      const subject = document.getElementById("subject").value;
-      const description = document.getElementById("description").value;
-      const price = document.getElementById("price").value;
-      const deadline = document.getElementById("deadline").value;
+      const subject = document.getElementById("subject").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const price = document.getElementById("price").value.trim();
+      const deadline = document.getElementById("deadline").value.trim();
 
       const user = tg.initDataUnsafe?.user;
       if (!user) {
-        alert("Ошибка: Telegram WebApp не определил пользователя.");
+        messageEl.textContent = "❌ Ошибка: пользователь Telegram не определён";
         return;
       }
 
-      const data = {
+      const taskData = {
         subject,
         description,
         price,
@@ -123,29 +128,26 @@
       };
 
       try {
-        const response = await fetch("https://c58f127afddc.ngrok-free.app/add-task", {
+        const response = await fetch("https://7ccfb3f7b487.ngrok-free.app/add-task", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(taskData)
         });
 
-        const result = await response.json();
-        if (result.success) {
-          messageBlock.innerHTML = `
-            <div class="success">
-              ✅ Задание добавлено!<br><br>
-              🔔 Как только исполнитель возьмёт задание — вы получите сообщение в Telegram.
-            </div>
-          `;
+        if (response.ok) {
+          messageEl.textContent = "✅ Задание добавлено! Ожидайте уведомления, когда его возьмут в работу.";
           form.reset();
+
+          setTimeout(() => {
+            tg.close();
+          }, 2500);
         } else {
-          messageBlock.innerHTML = <div class="error">❌ Ошибка: ${result.error || "Не удалось добавить задание."}</div>;
+          messageEl.textContent = "❌ Ошибка при отправке. Попробуйте позже.";
+          console.error("Ошибка при отправке задания:", await response.text());
         }
-      } catch (err) {
-        console.error("Ошибка при отправке:", err);
-        messageBlock.innerHTML = <div class="error">❌ Ошибка при отправке задания: ${err.message}</div>;
+      } catch (error) {
+        messageEl.textContent = "❌ Ошибка при подключении.";
+        console.error("Ошибка:", error);
       }
     });
   </script>
