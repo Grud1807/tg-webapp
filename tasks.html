@@ -12,13 +12,11 @@
       margin: 0;
       padding: 0;
     }
-
     .container {
       padding: 20px;
       max-width: 600px;
       margin: auto;
     }
-
     .task {
       background-color: #fff;
       border-radius: 10px;
@@ -26,17 +24,14 @@
       padding: 16px;
       margin-bottom: 16px;
     }
-
     .task h3 {
       margin: 0 0 10px;
       color: #1a237e;
     }
-
     .task p {
       margin: 4px 0;
       color: #333;
     }
-
     .btn-take {
       margin-top: 10px;
       background-color: #1a73e8;
@@ -47,15 +42,12 @@
       font-weight: bold;
       cursor: pointer;
     }
-
     .btn-take:hover {
       background-color: #155ab6;
     }
-
     .inactive-task {
       opacity: 0.5;
     }
-
     .back-button {
       position: fixed;
       top: 10px;
@@ -82,7 +74,7 @@
   <script>
     const apiUrl = "https://api.airtable.com/v0/appTpq4tdeQ27uxQ9/Tasks";
     const airtableApiKey = "patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4";
-    const takeTaskUrl = "https://83f6ea7337c9.ngrok-free.app/take-task"; // ⬅️ заменяй, если ссылка обновится
+    const takeTaskUrl = "https://83f6ea7337c9.ngrok-free.app/take-task"; // ⚠️ Обнови при новой ссылке ngrok
     const tg = window.Telegram.WebApp;
     tg.ready();
 
@@ -91,7 +83,7 @@
     async function fetchTasks() {
       try {
         const response = await fetch(apiUrl, {
-          headers: { Authorization: `Bearer ${airtableApiKey} `}
+          headers: { Authorization: `Bearer ${airtableApiKey}` }
         });
 
         const data = await response.json();
@@ -139,7 +131,8 @@
               task.classList.add('inactive-task');
               task.innerHTML = content;
               otherTasks.push(task);
-            } else {content += `<button class="btn-take" onclick="takeTask('${taskId}', '${customerUsername}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>`;
+            } else {
+              content += `<button class="btn-take" onclick="takeTask('${taskId}', '${customerUsername}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>`;
               task.innerHTML = content;
               newTasks.push(task);
             }
@@ -181,7 +174,10 @@
           alert(`✅ Вы взяли задание!\n\n📚 ${subject}\n📝 ${description}\n💰 ${price} ₽\n⏰ ${deadline}\n\nКонтакт заказчика: @${customerUsername}`);
           const taskEl = document.getElementById(`task-${taskId}`);
           if (taskEl) taskEl.remove();
-          tg.close();
+
+          setTimeout(() => {
+            tg.close(); // закрываем WebApp
+          }, 1500);
         } else {
           alert("❌ Не удалось взять задание: " + result.error);
           console.error("Ошибка:", result.error);
