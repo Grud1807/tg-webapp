@@ -100,60 +100,62 @@
   </form>
 
   <script>
-    <script>
-  const form = document.getElementById("task-form");
-  const messageEl = document.getElementById("message");
-  const tg = window.Telegram.WebApp;
+    const form = document.getElementById("task-form");
+    const messageEl = document.getElementById("message");
+    const tg = window.Telegram.WebApp;
+    tg.ready();
 
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
+    const serverUrl = "https://83f6ea7337c9.ngrok-free.app/add-task"; // 🟡 Обнови, если меняется ngrok
 
-    const subject = document.getElementById("subject").value.trim();
-    const description = document.getElementById("description").value.trim();
-    const price = document.getElementById("price").value.trim();
-    const deadline = document.getElementById("deadline").value.trim();
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    const user = tg.initDataUnsafe?.user;
-    if (!user) {
-      messageEl.textContent = "❌ Ошибка: пользователь Telegram не определён";
-      return;
-    }
+      const subject = document.getElementById("subject").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const price = document.getElementById("price").value.trim();
+      const deadline = document.getElementById("deadline").value.trim();
 
-    const taskData = {
-      subject,
-      description,
-      price,
-      deadline,
-      user_id: user.id,
-      username: user.username || ""
-    };
+      const user = tg.initDataUnsafe?.user  { id: 0, username: "testuser" };
 
-    try {
-      const response = await fetch("https://83f6ea7337c9.ngrok-free.app", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(taskData)
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        messageEl.textContent = "✅ Задание добавлено! Ожидайте уведомления, когда его возьмут в работу.";
-        form.reset();
-
-        setTimeout(() => {
-          tg.close();
-        }, 2500);
-      } else {
-        messageEl.textContent = "❌ Ошибка при добавлении задания.";
-        console.error("Ошибка:", result.error || "неизвестная");
+      if (!user  !user.id) {
+        messageEl.textContent = "❌ Ошибка: не удалось определить пользователя.";
+        return;
       }
 
-    } catch (error) {
-      messageEl.textContent = "❌ Ошибка при подключении.";
-      console.error("Ошибка:", error);
-    }
-  });
-</script>
+      const taskData = {
+        subject,
+        description,
+        price,
+        deadline,
+        user_id: user.id,
+        username: user.username || ""
+      };
+
+      try {
+        const response = await fetch(serverUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(taskData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          messageEl.textContent = "✅ Задание добавлено! Ждите, когда исполнитель возьмёт его в работу.";
+          form.reset();
+
+          setTimeout(() => {
+            tg.close(); // закрытие WebApp
+          }, 2500);
+        } else {
+          messageEl.textContent = "❌ Ошибка при добавлении. Попробуйте позже.";
+          console.error("Ошибка от сервера:", result.error);
+        }
+      } catch (error) {
+        messageEl.textContent = "❌ Ошибка при подключении.";
+        console.error("Ошибка подключения:", error);
+      }
+    });
+  </script>
 </body>
 </html>
