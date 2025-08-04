@@ -105,7 +105,7 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
 
-    const serverUrl = "https://934fb2a070c2.ngrok-free.app/add-task"; // 🟡 Обнови, если меняется ngrok
+    const serverUrl = "https://934fb2a070c2.ngrok-free.app/add-task"; // Заменяй под свой ngrok
 
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
@@ -115,9 +115,9 @@
       const price = document.getElementById("price").value.trim();
       const deadline = document.getElementById("deadline").value.trim();
 
-      const user = tg.initDataUnsafe?.user  { id: 0, username: "testuser" };
+      const user = tg.initDataUnsafe?.user || { id: 0, username: "testuser" };
 
-      if (!user  !user.id) {
+      if (!user || !user.id) {
         messageEl.textContent = "❌ Ошибка: не удалось определить пользователя.";
         return;
       }
@@ -141,11 +141,11 @@
         const result = await response.json();
 
         if (result.success) {
-          messageEl.textContent = "✅ Задание добавлено! Ждите, когда исполнитель возьмёт его в работу.";
+          messageEl.textContent = "✅ Задание добавлено! Ожидайте уведомления, когда его возьмут в работу.";
           form.reset();
 
           setTimeout(() => {
-            tg.close(); // закрытие WebApp
+            tg.close();
           }, 2500);
         } else {
           messageEl.textContent = "❌ Ошибка при добавлении. Попробуйте позже.";
