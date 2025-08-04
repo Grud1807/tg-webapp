@@ -76,6 +76,15 @@
       text-align: center;
       margin-top: 20px;
       font-weight: bold;
+      color: #1a237e;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
     }
   </style>
 </head>
@@ -105,20 +114,20 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
 
-    const serverUrl = "https://1c858e1c1d8e.ngrok-free.app/add-task"; // Заменяй под свой ngrok
-
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
+      messageEl.textContent = "";
+      messageEl.className = "message";
 
       const subject = document.getElementById("subject").value.trim();
       const description = document.getElementById("description").value.trim();
       const price = document.getElementById("price").value.trim();
       const deadline = document.getElementById("deadline").value.trim();
 
-      const user = tg.initDataUnsafe?.user || { id: 0, username: "testuser" };
-
+      const user = tg.initDataUnsafe?.user;
       if (!user || !user.id) {
-        messageEl.textContent = "❌ Ошибка: не удалось определить пользователя.";
+        messageEl.textContent = "❌ Ошибка: не удалось определить пользователя Telegram";
+        messageEl.classList.add("error");
         return;
       }
 
@@ -132,7 +141,7 @@
       };
 
       try {
-        const response = await fetch(serverUrl, {
+        const response = await fetch("https://1c858e1c1d8e.ngrok-free.app/add-task", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(taskData)
@@ -140,20 +149,23 @@
 
         const result = await response.json();
 
-        if (result.success) {
-          messageEl.textContent = "✅ Задание добавлено! Ожидайте уведомления, когда его возьмут в работу.";
+        if (response.ok && result.success) {
+          messageEl.textContent = "✅ Задание добавлено! Ждите уведомления, когда его возьмут.";
+          messageEl.classList.add("success");
           form.reset();
 
           setTimeout(() => {
             tg.close();
           }, 2500);
         } else {
-          messageEl.textContent = "❌ Ошибка при добавлении. Попробуйте позже.";
-          console.error("Ошибка от сервера:", result.error);
+          console.error("Ошибка:", result.error || "Нет ответа");
+          messageEl.textContent = "❌ Ошибка при добавлении: " + (result.error || "Попробуйте позже.");
+          messageEl.classList.add("error");
         }
       } catch (error) {
-        messageEl.textContent = "❌ Ошибка при подключении.";
-        console.error("Ошибка подключения:", error);
+        console.error("❌ Ошибка подключения:", error);
+        messageEl.textContent = "❌ Ошибка подключения к серверу.";
+        messageEl.classList.add("error");
       }
     });
   </script>
