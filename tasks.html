@@ -12,11 +12,13 @@
       margin: 0;
       padding: 0;
     }
+
     .container {
       padding: 20px;
       max-width: 600px;
       margin: auto;
     }
+
     .task {
       background-color: #fff;
       border-radius: 10px;
@@ -24,14 +26,17 @@
       padding: 16px;
       margin-bottom: 16px;
     }
+
     .task h3 {
       margin: 0 0 10px;
       color: #1a237e;
     }
+
     .task p {
       margin: 4px 0;
       color: #333;
     }
+
     .btn-take {
       margin-top: 10px;
       background-color: #1a73e8;
@@ -42,12 +47,15 @@
       font-weight: bold;
       cursor: pointer;
     }
+
     .btn-take:hover {
       background-color: #155ab6;
     }
+
     .inactive-task {
       opacity: 0.5;
     }
+
     .back-button {
       position: fixed;
       top: 10px;
@@ -66,15 +74,13 @@
   <a href="index.html" class="back-button">← Назад</a>
   <div class="container">
     <h2>📋 Все задания</h2>
-    <div id="tasks-list">
-      <p>Загрузка заданий...</p>
-    </div>
+    <div id="tasks-list"><p>Загрузка заданий...</p></div>
   </div>
 
   <script>
-    const apiUrl = "https://api.airtable.com/v0/appTpq4tdeQ27uxQ9/Tasks";
+    const airtableUrl = "https://api.airtable.com/v0/appTpq4tdeQ27uxQ9/Tasks";
     const airtableApiKey = "patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4";
-    const takeTaskUrl = "https://2b7a1c8946f1.ngrok-free.app/take-task"; // ⚠️ Обнови при новой ссылке ngrok
+    const takeTaskUrl = "https://4558b96ef89c.ngrok-free.app/take-task";
     const tg = window.Telegram.WebApp;
     tg.ready();
 
@@ -82,22 +88,21 @@
 
     async function fetchTasks() {
       try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch(airtableUrl, {
           headers: { Authorization: `Bearer ${airtableApiKey}` }
         });
-
         const data = await response.json();
-        const tasksContainer = document.getElementById('tasks-list');
-        tasksContainer.innerHTML = '';
+        const tasksContainer = document.getElementById("tasks-list");
+        tasksContainer.innerHTML = "";
 
         const newTasks = [];
         const otherTasks = [];
         let hasActiveTask = false;
 
         data.records.forEach(record => {
-          const status = record.fields['Статус'];
-          const executorId = record.fields['ID пользователя'];
-          if (status === 'В работе' && executorId == user.id) {
+          const status = record.fields["Статус"];
+          const executorId = record.fields["ID исполнителя"];
+          if (status === "В работе" && executorId == user.id) {
             hasActiveTask = true;
           }
         });
@@ -105,40 +110,39 @@
         data.records.forEach(record => {
           const taskId = record.id;
           const fields = record.fields;
-          const status = fields['Статус'] || 'Без статуса';
-          const ownerId = fields['ID пользователя'];
-          const customerUsername = fields['Пользователь Telegram'] || "неизвестно";
+          const status = fields["Статус"] || "Без статуса";
+          const ownerId = fields["ID заказчика"];
+          const customerUsername = fields["Пользователь Telegram"] || "неизвестно";
 
-          const task = document.createElement('div');
-          task.className = 'task';
+          const task = document.createElement("div");
+          task.className = "task";
           task.id = `task-${taskId}`;
 
           let content = `
-            <h3>${fields['Предмет'] || 'Без предмета'}</h3>
-            <p><strong>Описание:</strong> ${fields['Описание'] || '—'}</p>
-            <p><strong>Цена:</strong> ${fields['Цена'] || '—'} ₽</p>
-            <p><strong>Дедлайн:</strong> ${fields['Дедлайн'] || '—'}</p>
+            <h3>${fields["Предмет"] || "Без предмета"}</h3>
+            <p><strong>Описание:</strong> ${fields["Описание"] || "—"}</p>
+            <p><strong>Цена:</strong> ${fields["Цена"] || "—"} ₽</p>
+            <p><strong>Дедлайн:</strong> ${fields["Дедлайн"] || "—"}</p>
           `;
 
-          if (status === 'Новое') {
+          if (status === "Новое") {
             if (ownerId == user.id) {
               content += `<p><em>❗️ Вы автор этого задания</em></p>`;
-              task.classList.add('inactive-task');
+              task.classList.add("inactive-task");
               task.innerHTML = content;
               otherTasks.push(task);
             } else if (hasActiveTask) {
               content += `<p><em>⛔️ У вас уже есть активное задание</em></p>`;
-              task.classList.add('inactive-task');
+              task.classList.add("inactive-task");
               task.innerHTML = content;
               otherTasks.push(task);
-            } else {
-              content += `<button class="btn-take" onclick="takeTask('${taskId}', '${customerUsername}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>`;
+            } else {content += `<button class="btn-take" onclick="takeTask('${taskId}', '${customerUsername}', '${fields["Предмет"]}', '${fields["Описание"]}', '${fields["Цена"]}', '${fields["Дедлайн"]}')">Взять в работу</button>`;
               task.innerHTML = content;
               newTasks.push(task);
             }
           } else {
             content += `<p><em>Статус: ${status}</em></p>`;
-            task.classList.add('inactive-task');
+            task.classList.add("inactive-task");
             task.innerHTML = content;
             otherTasks.push(task);
           }
@@ -147,20 +151,18 @@
         [...newTasks, ...otherTasks].forEach(t => tasksContainer.appendChild(t));
       } catch (err) {
         console.error("❌ Ошибка загрузки:", err);
-        document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
+        document.getElementById("tasks-list").innerHTML = "<p>Ошибка загрузки заданий 😥</p>";
       }
     }
 
     async function takeTask(taskId, customerUsername, subject, description, price, deadline) {
-      const confirmed = confirm("Вы уверены, что хотите взять это задание в работу?");
+      const confirmed = confirm("Вы уверены, что хотите взять это задание?");
       if (!confirmed) return;
 
       try {
         const res = await fetch(takeTaskUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             record_id: taskId,
             executor_id: user.id,
@@ -171,20 +173,19 @@
         const result = await res.json();
 
         if (result.success) {
-          alert(`✅ Вы взяли задание!\n\n📚 ${subject}\n📝 ${description}\n💰 ${price} ₽\n⏰ ${deadline}\n\nКонтакт заказчика: @${customerUsername}`);
+          alert(
+            ✅ Вы взяли задание!\n\n📚 ${subject}\n📝 ${description}\n💰 ${price} ₽\n⏰ ${deadline}\n\nКонтакт заказчика: @${customerUsername}
+          );
+
           const taskEl = document.getElementById(`task-${taskId}`);
           if (taskEl) taskEl.remove();
-
-          setTimeout(() => {
-            tg.close(); // закрываем WebApp
-          }, 1500);
+          tg.close();
         } else {
           alert("❌ Не удалось взять задание: " + result.error);
-          console.error("Ошибка:", result.error);
         }
       } catch (err) {
         console.error("❌ Ошибка запроса:", err);
-        alert("Ошибка при взятии задания. Проверьте соединение.");
+        alert("Ошибка при соединении с сервером.");
       }
     }
 
