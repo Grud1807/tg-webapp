@@ -119,7 +119,7 @@
       const price = document.getElementById("price").value.trim();
       const deadline = document.getElementById("deadline").value;
 
-      if (!subject  !description  !price || !deadline) {
+      if (!subject || !description || !price || !deadline) {
         messageEl.textContent = "❌ Пожалуйста, заполните все поля.";
         return;
       }
