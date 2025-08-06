@@ -93,8 +93,8 @@
     <label>Цена (в ₽):</label>
     <input type="number" id="price" required>
 
-    <label>Дедлайн (дд.мм):</label>
-    <input type="text" id="deadline" placeholder="Например, 17.08" required>
+    <label>Дедлайн (гггг-мм-дд):</label>
+    <input type="date" id="deadline" required>
 
     <button type="submit">Отправить</button>
     <div class="message" id="message"></div>
@@ -106,19 +106,11 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
 
-    // Фейковый пользователь для тестов в браузере
-    let user = tg.initDataUnsafe?.user;
-    if (!user) {
-      console.warn("⚠️ Пользователь Telegram не найден — используем фейкового");
-      user = {
-        id: 123456789,
-        username: "fakeuser"
-      };
-    } else {
-      console.log("✅ Пользователь Telegram:", user);
-    }
-
-    const BACKEND_URL = "https://7a9f1a44c399.ngrok-free.app/add-task"; // 👈 ПОДСТАВЬ АКТУАЛЬНУЮ ССЫЛКУ NGROK
+    // 🧪 Фейковый Telegram-пользователь для тестов
+    const user = tg.initDataUnsafe?.user || {
+      id: 123456789,
+      username: "fakeuser"
+    };
 
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
@@ -126,10 +118,10 @@
       const subject = document.getElementById("subject").value.trim();
       const description = document.getElementById("description").value.trim();
       const price = document.getElementById("price").value.trim();
-      const deadline = document.getElementById("deadline").value.trim();
+      const deadline = document.getElementById("deadline").value;
 
-      if (!subject || !description || !price || !deadline) {
-        messageEl.textContent = "❌ Заполните все поля!";
+      if (!subject  !description  !price || !deadline) {
+        messageEl.textContent = "❌ Пожалуйста, заполните все поля.";
         return;
       }
 
@@ -145,11 +137,9 @@
       console.log("📤 Отправка задания:", payload);
 
       try {
-        const response = await fetch(BACKEND_URL, {
+        const response = await fetch("https://7a9f1a44c399.ngrok-free.app/add-task", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
@@ -159,10 +149,7 @@
         if (result.success) {
           messageEl.textContent = "✅ Задание успешно добавлено!";
           form.reset();
-          setTimeout(() => {
-            console.log("🚪 Закрытие WebApp...");
-            tg.close();
-          }, 2000);
+          setTimeout(() => tg.close(), 2000);
         } else {
           messageEl.textContent = "❌ Ошибка: " + (result.error || "Неизвестная ошибка.");
           console.error("❌ Ошибка ответа:", result);
