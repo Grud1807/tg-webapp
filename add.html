@@ -2,13 +2,13 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Добавить задание</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background-color: #f3f6fa;
+      background: linear-gradient(135deg, #f3f6fa, #e3ebf7);
       margin: 0;
       padding: 20px;
     }
@@ -23,14 +23,14 @@
       background-color: #fff;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       max-width: 500px;
       margin: auto;
     }
 
     label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       color: #333;
       font-weight: bold;
     }
@@ -42,6 +42,13 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 6px rgba(26, 115, 232, 0.3);
+      outline: none;
     }
 
     button {
@@ -54,10 +61,17 @@
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    button:hover {
+    button:hover:not(:disabled) {
       background-color: #155ab6;
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      background-color: #a0c1f7;
+      cursor: not-allowed;
     }
 
     .back-button {
@@ -71,6 +85,7 @@
       text-decoration: none;
       font-weight: bold;
       font-size: 14px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .message {
@@ -93,34 +108,40 @@
     <label>Цена (в ₽):</label>
     <input type="number" id="price" required>
 
-    <label>Дедлайн (в формате ГГГГ-ММ-ДД):</label>
+    <label>Дедлайн:</label>
     <input type="date" id="deadline" required>
 
-    <button type="submit">Отправить</button>
+    <button type="submit" id="submit-btn">Отправить</button>
     <div class="message" id="message"></div>
   </form>
 
   <script>
     const form = document.getElementById("task-form");
     const messageEl = document.getElementById("message");
+    const submitBtn = document.getElementById("submit-btn");
     const tg = window.Telegram.WebApp;
     tg.ready();
 
     const user = tg.initDataUnsafe?.user || {
       id: 123456789,
-      username: "fakeuser"  // Для тестов
+      username: "fakeuser" // Для теста
     };
 
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
+
+      // Блокируем кнопку сразу, чтобы избежать дублей
+      submitBtn.disabled = true;
+      messageEl.textContent = "⏳ Отправка задания...";
 
       const subject = document.getElementById("subject").value.trim();
       const description = document.getElementById("description").value.trim();
       const price = document.getElementById("price").value.trim();
       const deadline = document.getElementById("deadline").value;
 
-      if (!subject || !description || !price || !deadline) {
+      if (!subject  !description  !price || !deadline) {
         messageEl.textContent = "❌ Пожалуйста, заполните все поля.";
+        submitBtn.disabled = false;
         return;
       }
 
@@ -139,7 +160,6 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-
         const result = await response.json();
         console.log("📥 Ответ сервера:", result);
 
@@ -149,10 +169,12 @@
           setTimeout(() => tg.close(), 2000);
         } else {
           messageEl.textContent = "❌ Ошибка: " + (result.error || "Неизвестная ошибка.");
+          submitBtn.disabled = false;
         }
       } catch (error) {
         messageEl.textContent = "❌ Ошибка подключения к серверу.";
         console.error("❌ Ошибка:", error);
+        submitBtn.disabled = false;
       }
     });
   </script>
