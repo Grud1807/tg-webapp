@@ -148,7 +148,7 @@
           form.reset();
           setTimeout(() => tg.close(), 2000);
         } else {
-          messageEl.textContent = "❌ Ошибка: " + (result.error  "Неизвестная ошибка.");
+          messageEl.textContent = "❌ Ошибка: " + (result.error || "Неизвестная ошибка.");
         }
       } catch (error) {
         messageEl.textContent = "❌ Ошибка подключения к серверу.";
