@@ -106,11 +106,6 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
 
-    const user = tg.initDataUnsafe?.user {
-      id: 123456789,
-      username: "fakeuser"  // Для тестов
-    };
-
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
 
