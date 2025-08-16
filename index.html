@@ -6,6 +6,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>STUDENTUS — главное меню</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* временные стили, если не в styles.css */
+    .logo {
+      width: 120px; /* увеличил логотип */
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-size: 2rem; /* увеличенный заголовок */
+      margin-bottom: 5px;
+    }
+    .slogan-block {
+      margin-top: 25px;
+      margin-bottom: 10px;
+      text-align: left; /* слева */
+      padding-left: 10px;
+    }
+    .slogan {
+      font-size: 0.95rem;
+      color: #333;
+      font-weight: 500;
+    }
+    .btn {
+      display: block;
+      background: #3b82f6;
+      color: white;
+      text-decoration: none;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+      font-size: 1rem;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: #2563eb;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -20,8 +57,14 @@
       <a href="https://t.me/Studentus_adm" class="btn" target="_blank">🛟 Служба заботы</a>
       <a href="rules.html" class="btn" target="_blank">🔒 Гарантии</a>
     </div>
+
+    <!-- Новый блок для 10-классников -->
+    <div class="slogan-block">
+      <p class="slogan">10 класс? Индивидуальный проект — это не проблема, мы сделаем всё за тебя 😉</p>
+    </div>
+    <a href="project.html" class="btn">📘 Индивидуальный проект</a>
   </div>
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
 </html>
-
