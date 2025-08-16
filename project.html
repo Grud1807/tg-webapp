@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Индивидуальный проект</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 420px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(-15px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      margin-top: 18px;
+      width: 100%;
+      padding: 12px;
+      background: #4facfe;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #00c6fb;
+    }
+
+    .message {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Заявка на проект</h2>
+    <form id="projectForm">
+      <label for="name">Ваше имя</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="topic">Тема проекта</label>
+      <input type="text" id="topic" name="topic" required>
+
+      <label for="deadline">Дедлайн</label>
+      <input type="date" id="deadline" name="deadline" required>
+
+      <label for="wishes">Дополнительные пожелания</label>
+      <textarea id="wishes" name="wishes"></textarea>
+
+      <label for="contacts">Ваши контакты (Telegram или телефон)</label>
+      <input type="text" id="contacts" name="contacts" required>
+
+      <button type="submit">Оставить заявку</button>
+    </form>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    document.getElementById("projectForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const data = {
+        name: document.getElementById("name").value,
+        topic: document.getElementById("topic").value,
+        deadline: document.getElementById("deadline").value,
+        wishes: document.getElementById("wishes").value,
+        contacts: document.getElementById("contacts").value
+      };
+
+      try {
+        const response = await fetch("https://ТВОЙ-АДРЕС-APP-RU/add-project", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        const messageEl = document.getElementById("message");
+
+        if (result.success) {
+          messageEl.style.color = "green";
+          messageEl.textContent = result.message;
+          document.getElementById("projectForm").reset();
+
+          // закрываем WebApp (если открыто в Telegram)
+          if (window.Telegram && window.Telegram.WebApp) {
+            setTimeout(() => {
+              window.Telegram.WebApp.close();
+            }, 2000);
+          }
+        } else {
+          messageEl.style.color = "red";
+          messageEl.textContent = result.message || "Ошибка при отправке";
+        }
+      } catch (error) {
+        document.getElementById("message").style.color = "red";
+        document.getElementById("message").textContent = "Ошибка соединения с сервером";
+      }
+    });
+  </script>
+</body>
+</html>
