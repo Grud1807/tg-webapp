@@ -1,170 +1,124 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Индивидуальный проект</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
-    .container {
-      margin-top: 40px;
-      background: #fff;
-      padding: 25px 30px;
-      border-radius: 16px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 420px;
-      text-align: center;
-      animation: fadeIn 0.6s ease-in-out;
-    }
-    h1 {
-      font-size: 1.4rem;
-      margin-bottom: 15px;
-      color: #333;
-    }
-    p {
-      font-size: 0.95rem;
-      color: #555;
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: #444;
-      text-align: left;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 18px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      transition: border 0.2s;
-    }
-    input:focus, textarea:focus {
-      border-color: #6366f1;
-      outline: none;
-    }
-    textarea {
-      resize: none;
-      height: 90px;
-    }
-    button {
-      background: #4f46e5;
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      width: 100%;
-      font-size: 1rem;
-      transition: background 0.2s, transform 0.1s;
-    }
-    button:hover {
-      background: #4338ca;
-      transform: translateY(-1px);
-    }
-    .success-message {
-      display: none;
-      margin-top: 15px;
-      color: green;
-      font-weight: 600;
-    }
-    /* кнопка Назад */
-    .back-btn {
-      display: inline-block;
-      background: #f3f4f6;
-      color: #333;
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      text-decoration: none;
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      transition: background 0.2s;
-    }
-    .back-btn:hover {
-      background: #e5e7eb;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Индивидуальный проект</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #4A90E2;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #357ABD;
+        }
+        .success {
+            display: none;
+            text-align: center;
+            margin-bottom: 15px;
+            color: green;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <a href="index.html" class="back-btn">Назад</a>
-  <div class="container">
-    <h1>Индивидуальный проект</h1>
-    <p>Заполни форму, и мы свяжемся с тобой для уточнения деталей.</p>
-    <form id="projectForm">
-      <label for="name">Твоё имя</label>
-      <input type="text" id="name" name="name" placeholder="Иван" required>
-
-      <label for="topic">Тема проекта</label>
-      <input type="text" id="topic" name="topic" placeholder="Например: презентация по истории">
-
-      <label for="deadline">Дедлайн</label>
-      <input type="date" id="deadline" name="deadline" required>
-
-      <label for="requirements">Пожелания</label>
-      <textarea id="requirements" name="requirements" placeholder="Укажи пожелания или детали"></textarea>
-
-      <label for="contact">Контакты</label>
-      <input type="text" id="contact" name="contact" placeholder="@telegram или номер телефона" required>
-
-      <button type="submit">Оставить заявку</button>
-    </form>
-    <div class="success-message" id="successMessage">
-      ✅ Заявка успешно отправлена!
+    <div class="container">
+        <h1>Индивидуальный проект</h1>
+        <div class="success" id="successMessage">Заявка отправлена! После подтверждения с вами свяжутся.</div>
+        <form id="projectForm">
+            <input type="text" id="name" placeholder="Ваше имя" required>
+            <input type="text" id="projectTopic" placeholder="Тема проекта" required>
+            <input type="date" id="deadline" placeholder="Дедлайн" required>
+            <textarea id="wishes" placeholder="Дополнительные пожелания" rows="3"></textarea>
+            <input type="text" id="contacts" placeholder="Контакты" required>
+            <button type="submit">Оставить заявку</button>
+        </form>
     </div>
-  </div>
 
-  <script>
-    document.getElementById("projectForm").addEventListener("submit", async function(event) {
-      event.preventDefault();
-      const data = {
-        name: document.getElementById("name").value,
-        topic: document.getElementById("topic").value,
-        deadline: document.getElementById("deadline").value,
-        requirements: document.getElementById("requirements").value,
-        contact: document.getElementById("contact").value,
-      };
+    <script>
+        const form = document.getElementById('projectForm');
+        const successMessage = document.getElementById('successMessage');
 
-      try {
-        const response = await fetch("https://studentus-server.onrender.com/submit-project", {
-          method: "POST",headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                "fields": {
+                    "Имя": document.getElementById('name').value,
+                    "Тема проекта": document.getElementById('projectTopic').value,
+                    "Дедлайн": document.getElementById('deadline').value,
+                    "Пожелания": document.getElementById('wishes').value,
+                    "Контакты": document.getElementById('contacts').value,
+                    "Дата заявки": new Date().toISOString().split('T')[0],
+                    "Статус": "Новая"
+                }
+            };
+
+            try {
+                const response = await fetch("https://api.airtable.com/v0/app0YQKcIIvnnxQqj/Projects", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        if (window.Telegram.WebApp) {
+                            window.Telegram.WebApp.close();
+                        } else {
+                            form.reset();
+                            successMessage.style.display = 'none';
+                        }
+                    }, 2000);
+                } else {
+                    alert("Ошибка при отправке. Попробуйте ещё раз.");
+                }
+              } catch (error) {
+                console.error(error);
+                alert("Ошибка соединения. Проверьте интернет и попробуйте снова.");
+            }
         });
-
-        const result = await response.json();
-        if (result.success) {
-          document.getElementById("successMessage").style.display = "block";
-          document.getElementById("projectForm").reset();
-
-          if (window.Telegram && window.Telegram.WebApp) {
-            setTimeout(() => Telegram.WebApp.close(), 1200);
-          }
-        } else {
-          alert("Ошибка: " + result.error);
-        }
-      } catch (error) {
-        alert("Произошла ошибка при отправке");
-        console.error(error);
-      }
-    });
-  </script>
+    </script>
 </body>
 </html>
