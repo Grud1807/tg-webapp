@@ -1,90 +1,179 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Индивидуальный проект</title>
-  <style>
-    body{font-family:Arial, sans-serif;background:#f0f4f8;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}
-    .container{background:#fff;padding:30px 40px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.1);width:100%;max-width:500px;position:relative}
-    h1{text-align:center;margin-bottom:25px;color:#333}
-    label{display:block;margin-bottom:6px;font-weight:bold;color:#555}
-    input,textarea{width:100%;padding:12px 15px;margin-bottom:15px;border-radius:8px;border:1px solid #ccc;font-size:16px}
-    button{width:100%;padding:14px;background:#4A90E2;color:#fff;font-size:16px;border:none;border-radius:8px;cursor:pointer;transition:background .3s}
-    button:hover{background:#357ABD}
-    .success{display:none;text-align:center;margin-bottom:15px;color:green;font-weight:bold}
-    .back-button{position:absolute;top:15px;left:15px;padding:6px 12px;background:#ccc;border-radius:6px;text-decoration:none;color:#333;font-weight:bold;transition:background .3s}
-    .back-button:hover{background:#bbb}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Индивидуальный проект — Studentus</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #f0f4f7, #d9e2ec);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            color: #555;
+            font-weight: 500;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 5px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        button {
+            margin-top: 25px;
+            width: 100%;
+            padding: 12px;
+            background: #0078d7;
+            color: #fff;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #005ea3;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #0078d7;
+            font-weight: 500;
+        }
+        .back:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <a href="index.html" class="back-button">← Главная</a>
-    <h1>Индивидуальный проект</h1>
-    <div class="success" id="successMessage">Заявка отправлена! После подтверждения с вами свяжутся.</div>
+    <div class="container">
+        <h1>Оставить заявку на проект</h1>
 
-    <form id="projectForm">
-      <label for="name">Имя</label>
-      <input id="name" type="text" required />
+        <label for="name">Ваше имя</label>
+        <input type="text" id="name" placeholder="Введите имя">
 
-      <label for="projectTopic">Тема проекта</label>
-      <input id="projectTopic" type="text" required />
+        <label for="projectTopic">Тема проекта</label>
+        <input type="text" id="projectTopic" placeholder="Пример: Экологический проект">
 
-      <label for="deadline">Дедлайн</label>
-      <input id="deadline" type="date" required />
+        <label for="deadline">Дедлайн</label>
+        <input type="date" id="deadline">
 
-      <label for="wishes">Дополнительные пожелания</label>
-      <textarea id="wishes" rows="3"></textarea>
+        <label for="wishes">Дополнительно / пожелания</label>
+        <textarea id="wishes" placeholder="Введите дополнительные пожелания"></textarea>
 
-      <label for="contacts">Контакты</label>
-      <input id="contacts" type="text" required />
+        <label for="contacts">Контакты (Telegram)</label>
+        <input type="text" id="contacts" placeholder="@username">
 
-      <button type="submit">Оставить заявку</button>
-    </form>
-  </div>
+        <button id="submitBtn">Отправить заявку</button>
 
-  <script>
-    const form = document.getElementById('projectForm');
-    const successMessage = document.getElementById('successMessage');
+        <div id="message" class="message"></div>
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+        <a href="index.html" class="back">← Назад на главную</a>
+    </div>
 
-      const data = {
-        name: document.getElementById('name').value,
-        projectTopic: document.getElementById('projectTopic').value,
-        deadline: document.getElementById('deadline').value,
-        wishes: document.getElementById('wishes').value,
-        contacts: document.getElementById('contacts').value,
-        date: new Date().toISOString().split('T')[0]
-      };
+    <script>
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('message');
 
-      try {
-        const res = await fetch("https://studentus-server.onrender.com/add-project", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
+        btn.addEventListener('click', async () => {
+            const data = {
+                name: document.getElementById('name').value.trim(),
+                projectTopic: document.getElementById('projectTopic').value.trim(),
+                deadline: document.getElementById('deadline').value,
+                wishes: document.getElementById('wishes').value.trim(),
+                contacts: document.getElementById('contacts').value.trim()
+            };
 
-        if (result.success) {
-          successMessage.style.display = 'block';
-          setTimeout(() => {
-            if (window.Telegram && window.Telegram.WebApp) {
-              window.Telegram.WebApp.close();
-            } else {
-              form.reset();
-              successMessage.style.display = 'none';
+            // Проверка заполнения
+            if (!data.name || !data.projectTopic || !data.deadline || !data.contacts) {
+                msg.textContent = "Пожалуйста, заполните все обязательные поля.";
+                msg.className = "message error";
+                msg.style.display = "block";
+                return;
             }
-          }, 2000);
-        } else {
-          alert("Ошибка при отправке: " + (result.message || "неизвестная ошибка") + (result.details ? "\n" + result.details : ""));
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Ошибка соединения. Проверьте интернет и попробуйте снова.");
-      }
-    });
-  </script>
+
+            msg.style.display = "none";
+            btn.disabled = true;
+            btn.textContent = "Отправка...";
+
+            try {
+                const response = await fetch('https://studentus-server.onrender.com/add-project', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    msg.textContent = result.message || "Заявка успешно отправлена!";
+                    msg.className = "message success";
+                    msg.style.display = "block";
+
+                    // Закрытие WebApp через 2 секунды
+                    setTimeout(() => {
+                        if (window.Telegram.WebApp) {
+                            window.Telegram.WebApp.close();
+                        }
+                    }, 2000);
+                } else {
+                    msg.textContent = result.message || "Ошибка при отправке";
+                    if (result.details) msg.textContent += `: ${result.details}`;
+                    msg.className = "message error";
+                    msg.style.display = "block";
+                    btn.disabled = false;
+                    btn.textContent = "Отправить заявку";
+                }
+
+            } catch (e) {
+                msg.textContent = "Ошибка при отправке: " + e;
+                msg.className = "message error";
+                msg.style.display = "block";
+                btn.disabled = false;
+                btn.textContent = "Отправить заявку";
+            }
+        });
+    </script>
 </body>
 </html>
