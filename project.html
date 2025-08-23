@@ -28,7 +28,7 @@
       position: relative;
     }
 
-    /* Кнопка назад (как на других страницах) */
+    /* Кнопка назад */
     .back-button {
       position: fixed;
       top: 10px;
@@ -40,14 +40,6 @@
       text-decoration: none;
       font-weight: bold;
       font-size: 14px;
-    }
-    .back-btn::before {
-      content: "←";
-      margin-right: 5px;
-      font-size: 14px;
-    }
-    .back-btn:hover {
-      background: #e0e0e0;
     }
 
     h2 {
@@ -80,7 +72,7 @@
       box-sizing: border-box;
     }
 
-   button {
+    button {
       margin-top: 20px;
       padding: 12px;
       width: 100%;
@@ -92,7 +84,6 @@
       font-weight: bold;
       cursor: pointer;
       transition: background 0.3s;
-    }
     }
     button:hover {
       background: #3a57d5;
@@ -126,8 +117,10 @@
   </style>
 </head>
 <body>
+  <!-- 🔙 Кнопка назад (как в add.html) -->
+  <a href="index.html" class="back-button">← Назад</a>
+
   <div class="container">
-    <button class="back-btn" onclick="goBack()">Назад</button>
     <h2>Индивидуальный проект</h2>
     <p>Наша команда <b>Studentus</b> полностью сделает за вас индивидуальный проект «под ключ». Заполните заявку, и менеджер свяжется с вами.</p>
 
@@ -154,24 +147,51 @@
       ✅ Ваша заявка успешно отправлена.<br>
       Ожидайте письма от нашего менеджера.
       <br>
-      <button class="ok-btn" onclick="goToHome()">ОК</button>
+      <button class="ok-btn" onclick="closeWebApp()">ОК</button>
     </div>
   </div>
 
   <script>
-    function goBack() {
-      window.location.href = "index.html"; // переход на главную
-    }
+    function closeWebApp() {
+      if (window.Telegram && Telegram.WebApp) {
+        Telegram.WebApp.close();
+      } else {
+        window.location.href = "/";
+      }
+    } 
 
-    function goToHome() {
-      window.location.href = "index.html"; // после "ОК" тоже на главную
-    }
-
-    // имитация отправки формы
-    document.getElementById("projectForm").addEventListener("submit", function(e) {
+    document.getElementById("projectForm").addEventListener("submit", async function(e) {
       e.preventDefault();
-      document.getElementById("projectForm").style.display = "none";
-      document.getElementById("successMessage").style.display = "block";
+
+      const submitBtn = document.getElementById("submitBtn");
+      submitBtn.disabled = true;
+
+      const formData = {
+        name: document.getElementById("name").value,
+        projectTopic: document.getElementById("projectTopic").value,
+        deadline: document.getElementById("deadline").value,
+        wishes: document.getElementById("wishes").value,
+        contacts: document.getElementById("contacts").value
+      };
+
+      try {
+        const response = await fetch("https://studentus-server.onrender.com/add-project", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          document.getElementById("projectForm").style.display = "none";
+          document.getElementById("successMessage").style.display = "block";
+        } else {
+          alert("Ошибка при отправке. Попробуйте снова.");
+          submitBtn.disabled = false;
+        }
+      } catch (error) {
+        alert("Ошибка соединения. Попробуйте позже.");
+        submitBtn.disabled = false;
+      }
     });
   </script>
 </body>
