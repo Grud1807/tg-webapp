@@ -28,21 +28,28 @@
       position: relative;
     }
 
-    /* Кнопка назад */
+    /* Кнопка назад (как на других страницах) */
     .back-btn {
       position: absolute;
       top: 15px;
       left: 15px;
-      padding: 4px 10px;
+      padding: 6px 12px;
       font-size: 14px;
-      background: #e0e0e0;
+      background: #f0f0f0;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
       transition: background 0.2s;
     }
+    .back-btn::before {
+      content: "←";
+      margin-right: 5px;
+      font-size: 14px;
+    }
     .back-btn:hover {
-      background: #d0d0d0;
+      background: #e0e0e0;
     }
 
     h2 {
@@ -148,59 +155,24 @@
       ✅ Ваша заявка успешно отправлена.<br>
       Ожидайте письма от нашего менеджера.
       <br>
-      <button class="ok-btn" onclick="closeWebApp()">ОК</button>
+      <button class="ok-btn" onclick="goToHome()">ОК</button>
     </div>
   </div>
 
   <script>
     function goBack() {
-      if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.close();
-      } else {
-        window.history.back();
-      }
+      window.location.href = "index.html"; // переход на главную
     }
 
-    function closeWebApp() {
-      if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.close();
-      } else {
-        window.location.href = "/";
-      }
+    function goToHome() {
+      window.location.href = "index.html"; // после "ОК" тоже на главную
     }
 
-    document.getElementById("projectForm").addEventListener("submit", async function(e) {
+    // имитация отправки формы
+    document.getElementById("projectForm").addEventListener("submit", function(e) {
       e.preventDefault();
-
-      const submitBtn = document.getElementById("submitBtn");
-      submitBtn.disabled = true;
-
-      const formData = {
-        name: document.getElementById("name").value,
-        projectTopic: document.getElementById("projectTopic").value,
-        deadline: document.getElementById("deadline").value,
-        wishes: document.getElementById("wishes").value,
-        contacts: document.getElementById("contacts").value
-      };
-
-      try {
-        const response = await fetch("https://studentus-server.onrender.com/add-project", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData)
-        });
-
-        if (response.ok) {
-          document.getElementById("projectForm").style.display = "none";
-          document.getElementById("successMessage").style.display = "block";
-        } else {
-          alert("Ошибка при отправке. Попробуйте снова.");
-          submitBtn.disabled = false;
-        }
-      } catch (error) {
-        alert("Ошибка соединения. Попробуйте позже.");
-        submitBtn.disabled = false;
-      }
+      document.getElementById("projectForm").style.display = "none";
+      document.getElementById("successMessage").style.display = "block";
     });
   </script>
 </body>
