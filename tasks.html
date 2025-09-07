@@ -86,8 +86,6 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
 
-    // Для браузера
-    const user = tg.initDataUnsafe?.user || { id: 123456789, username: "fakeuser" };
 
     async function fetchTasks() {
       try {
