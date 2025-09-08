@@ -96,7 +96,7 @@
     async function fetchTasks() {
       try {
         const response = await fetch(apiUrl, {
-          headers: { Authorization: Bearer ${airtableApiKey} }
+          headers: { Authorization: Bearer `${airtableApiKey}` }
         });
 
         const data = await response.json();
@@ -126,7 +126,7 @@
 
           const task = document.createElement('div');
           task.className = 'task';
-          task.id = task-${taskId};
+          task.id = `task-${taskId}`;
 
           let content = `
             <h3>${fields['Предмет'] || 'Без предмета'}</h3>
