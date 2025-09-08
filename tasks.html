@@ -151,6 +151,11 @@
               task.innerHTML = content;
               newTasks.push(task);
             }
+          } else if (status === 'В обработке') {
+            content += `<p><em>⏳ Задание на обработке. Скоро будет доступно.</em></p>`;
+            task.classList.add('inactive-task');
+            task.innerHTML = content;
+            otherTasks.push(task);
           } else {
             content += `<p><em>Статус: ${status}</em></p>`;
             task.classList.add('inactive-task');
