@@ -96,7 +96,7 @@
     async function fetchTasks() {
       try {
         const response = await fetch(apiUrl, {
-          headers: { Authorization: Bearer  + airtableApiKey }
+          headers: { Authorization: `Bearer ${airtableApiKey}` }
         });
 
         const data = await response.json();
