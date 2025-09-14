@@ -93,6 +93,17 @@
     const airtableApiKey = "patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4";
     const takeTaskUrl = "https://studentus-server.onrender.com/take-task"; // 🔁 сюда подставь актуальную ссылку
 
+    // Функция для экранирования спецсимволов
+    function escapeStr(str) {
+      if (!str) return '';
+      return str
+        .replace(/\\/g, "\\\\")
+        .replace(/`/g, "\\`")
+        .replace(/\$/g, "\\$")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
     async function fetchTasks() {
       try {
         const response = await fetch(apiUrl, {
@@ -129,10 +140,10 @@
           task.id = `task-${taskId}`;
 
           let content = `
-            <h3>${fields['Предмет'] || 'Без предмета'}</h3>
-            <p><strong>Описание:</strong> ${fields['Описание'] || '—'}</p>
-            <p><strong>Цена:</strong> ${fields['Цена'] || '—'} ₽</p>
-            <p><strong>Дедлайн:</strong> ${fields['Дедлайн'] || '—'}</p>
+            <h3>${escapeStr(fields['Предмет'] || 'Без предмета')}</h3>
+            <p><strong>Описание:</strong> ${escapeStr(fields['Описание'] || '—')}</p>
+            <p><strong>Цена:</strong> ${escapeStr(fields['Цена'] || '—')} ₽</p>
+            <p><strong>Дедлайн:</strong> ${escapeStr(fields['Дедлайн'] || '—')}</p>
           `;
 
           if (status === 'Новое') {
@@ -147,7 +158,7 @@
               task.innerHTML = content;
               otherTasks.push(task);
             } else {
-              content += `<button class="btn-take" onclick="takeTask('${taskId}', '${customerUsername}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>`;
+              content += `<button class="btn-take" onclick="takeTask('${taskId}', '${escapeStr(customerUsername)}', '${escapeStr(fields['Предмет'])}', '${escapeStr(fields['Описание'])}', '${escapeStr(fields['Цена'])}', '${escapeStr(fields['Дедлайн'])}')">Взять в работу</button>`;
               task.innerHTML = content;
               newTasks.push(task);
             }
@@ -157,7 +168,7 @@
             task.innerHTML = content;
             otherTasks.push(task);
           } else {
-            content += `<p><em>Статус: ${status}</em></p>`;
+            content += `<p><em>Статус: ${escapeStr(status)}</em></p>`;
             task.classList.add('inactive-task');
             task.innerHTML = content;
             otherTasks.push(task);
