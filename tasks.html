@@ -1,211 +1,148 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Список заданий</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f3f6fa;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-    }
-
-    .task {
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .task h3 {
-      margin: 0 0 10px;
-      color: #1a237e;
-    }
-
-    .task p {
-      margin: 4px 0;
-      color: #333;
-    }
-
-    .btn-take {
-      margin-top: 10px;
-      background-color: #1a73e8;
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-take:hover {
-      background-color: #155ab6;
-    }
-
-    .inactive-task {
-      opacity: 0.5;
-    }
-
-    .back-button {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      background-color: #e3e9f4;
-      color: #1a237e;
-      padding: 6px 14px;
-      border-radius: 20px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 14px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Список заданий</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .task {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .task h3 {
+            margin: 0 0 10px 0;
+            color: #34495e;
+        }
+        .task p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .take-btn {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .take-btn:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+        #back {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: #2980b9;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-  <a href="index.html" class="back-button">← Назад</a>
-  <div class="container">
-    <h2>📋 Все задания</h2>
-    <div id="tasks-list">
-      <p>Загрузка заданий...</p>
-    </div>
-  </div>
+    <a id="back" href="index.html">← Назад на главную</a>
+    <h1>Список заданий</h1>
+    <div id="tasks"></div>
 
-  <script>
-    // Инициализация Telegram WebApp
-    const tg = window.Telegram.WebApp;
-    tg.ready();
+    <script>
+        const AIRTABLE_API_KEY = "patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4";
+        const AIRTABLE_BASE_ID = "appTpq4tdeQ27uxQ9";
+        const AIRTABLE_TABLE_NAME = "Tasks";
+        const AIRTABLE_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`;
 
-    // Получаем пользователя из Telegram
-    const user = tg.initDataUnsafe.user || {};
-    const userId = user.id || 0; // если нет id — ставим 0
-    const userUsername = user.username ? `@${user.username}` : "без username";
+        let tg = window.Telegram.WebApp;
+        let user = tg.initDataUnsafe?.user;
 
-    const apiUrl = "https://api.airtable.com/v0/appTpq4tdeQ27uxQ9/Tasks";
-    const airtableApiKey = "patZ7hX8W8F8apmJm.9adf2ed71f8925dd372af08a5b5af2af4b12ead4abc0036be4ea68c43c47a8c4";
-    const takeTaskUrl = "https://studentus-server.onrender.com/take-task"; // 🔁 подставь актуальную ссылку
+        async function fetchTasks() {
+            try {
+                const response = await fetch(AIRTABLE_URL, {
+                    headers: { Authorization: "Bearer " + AIRTABLE_API_KEY }
+                });
+                const data = await response.json();
 
-    async function fetchTasks() {
-      try {
-        const response = await fetch(apiUrl, {
-          headers: { Authorization: `Bearer ${airtableApiKey}` }
-        });
+                const tasksDiv = document.getElementById("tasks");
+                tasksDiv.innerHTML = "";
 
-        const data = await response.json();
-        const tasksContainer = document.getElementById('tasks-list');
-        tasksContainer.innerHTML = '';
+                data.records.forEach(record => {
+                    const status = record.fields["Статус"] || "";
+                    const executorId = record.fields["ID исполнителя"];
 
-        const newTasks = [];
-        const otherTasks = [];
-        let hasActiveTask = false;
+                    const taskDiv = document.createElement("div");
+                    taskDiv.className = "task";
 
-        // Проверяем, есть ли активное задание у этого юзера
-        data.records.forEach(record => {
-          const status = record.fields['Статус'];
-          const executorId = record.fields['ID исполнителя'];
-          if (status === 'В работе' && executorId == userId) {
-            hasActiveTask = true;
-          }
-        });
+                    taskDiv.innerHTML = `
+                        <h3>${record.fields["Предмет"] || "Без предмета"}</h3>
+                        <p><strong>Описание:</strong> ${record.fields["Описание"] || "—"}</p>
+                        <p><strong>Цена:</strong> ${record.fields["Цена"] || "—"}</p>
+                        <p><strong>Дедлайн:</strong> ${record.fields["Дедлайн"] || "—"}</p>
+                        <p><strong>Статус:</strong> ${status}</p>
+                    `;
 
-        // Рендерим список
-        data.records.forEach(record => {
-          const taskId = record.id;
-          const fields = record.fields;
-          const status = fields['Статус'] || 'Без статуса';
-          const ownerId = fields['ID пользователя'];
-          const customerUsername = fields['Пользователь Telegram'] || "неизвестно";
+                    const btn = document.createElement("button");
+                    btn.className = "take-btn";
+                    btn.textContent = "Взять в работу";
 
-          const task = document.createElement('div');
-          task.className = 'task';
-          task.id = `task-${taskId}`;
+                    // Кнопка доступна только если задание "Новое"
+                    if (status === "Новое") {
+                        btn.onclick = () => takeTask(record.id);
+                    } else {
+                        btn.disabled = true;
+                    }
 
-          let content = `
-            <h3>${fields['Предмет'] || 'Без предмета'}</h3>
-            <p><strong>Описание:</strong> ${fields['Описание'] || '—'}</p>
-            <p><strong>Цена:</strong> ${fields['Цена'] || '—'} ₽</p>
-            <p><strong>Дедлайн:</strong> ${fields['Дедлайн'] || '—'}</p>
-          `;
-
-          if (status === 'Новое') {
-            if (ownerId == userId) {
-              content += `<p><em>❗️ Вы автор этого задания</em></p>`;
-              task.classList.add('inactive-task');
-              task.innerHTML = content;
-              otherTasks.push(task);
-            } else if (hasActiveTask) {
-              content += `<p><em>⛔️ У вас уже есть активное задание</em></p>`;
-              task.classList.add('inactive-task');
-              task.innerHTML = content;
-              otherTasks.push(task);
-            } else {
-              content += `<button class="btn-take" onclick="takeTask('${taskId}', '${customerUsername}', '${fields['Предмет']}', '${fields['Описание']}', '${fields['Цена']}', '${fields['Дедлайн']}')">Взять в работу</button>`;
-              task.innerHTML = content;
-              newTasks.push(task);
+                    taskDiv.appendChild(btn);
+                    tasksDiv.appendChild(taskDiv);
+                });
+            } catch (error) {
+                console.error("Ошибка загрузки:", error);
+                alert("Ошибка загрузки заданий!");
             }
-          } else if (status === 'В обработке') {
-            content += `<p><em>⏳ Задание на обработке. Скоро будет доступно.</em></p>`;
-            task.classList.add('inactive-task');
-            task.innerHTML = content;
-            otherTasks.push(task);
-          } else {
-            content += `<p><em>Статус: ${status}</em></p>`;
-            task.classList.add('inactive-task');
-            task.innerHTML = content;
-            otherTasks.push(task);
-          }
-        });
-
-        [...newTasks, ...otherTasks].forEach(t => tasksContainer.appendChild(t));
-      } catch (err) {
-        console.error("❌ Ошибка загрузки:", err);
-        document.getElementById('tasks-list').innerHTML = '<p>Ошибка загрузки заданий 😥</p>';
-      }
-    }
-
-    async function takeTask(taskId, customerUsername, subject, description, price, deadline) {
-      const confirmed = confirm("Вы уверены, что хотите взять это задание в работу?");
-      if (!confirmed) return;
-
-      try {
-        const res = await fetch(takeTaskUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            record_id: taskId,
-            executor_id: userId,
-            executor_username: userUsername
-          })
-        });
-
-        const result = await res.json();
-
-        if (result.success) {
-          alert(`✅ Вы взяли задание!\n\n📚 ${subject}\n📝 ${description}\n💰 ${price} ₽\n⏰ ${deadline}\n\nКонтакт заказчика: ${customerUsername}`);
-          const taskEl = document.getElementById(`task-${taskId}`);
-          if (taskEl) taskEl.remove();
-          tg.close();
-        } else {
-          alert("❌ Не удалось взять задание: " + result.error);
-          console.error("Ошибка:", result.error);
         }
-      } catch (err) {
-        console.error("❌ Ошибка запроса:", err);
-        alert("Ошибка при взятии задания. Проверьте соединение.");
-      }
-    }
 
-    fetchTasks();
-  </script>
+        async function takeTask(recordId) {
+            if (!user) {
+                alert("Ошибка: не удалось определить пользователя Telegram.");
+                return;
+            }
+
+            try {
+                await fetch(`${AIRTABLE_URL}/${recordId}`, {
+                    method: "PATCH",
+                    headers: {
+                        Authorization: "Bearer " + AIRTABLE_API_KEY,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        fields: {
+                            "Статус": "В работе",
+                            "ID исполнителя": user.id
+                        }
+                    })
+                });
+
+                alert("Задание успешно взято в работу!");
+                fetchTasks();
+            } catch (error) {
+                console.error("Ошибка при взятии задания:", error);
+                alert("Не удалось взять задание.");
+            }
+        }
+
+        fetchTasks();
+    </script>
 </body>
 </html>
